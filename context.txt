@@ -1,0 +1,116 @@
+ALGOVEDA PROJECT STRUCTURE DOCUMENTATION
+
+PROJECT OVERVIEW
+
+Project Name: ALGOVEDA
+Goal: To create an interactive web application that merges structured, expert-designed learning content with a robust gamification engine to improve student engagement, retention, and ultimate mastery of complex technical subjects. This solution directly addresses the widespread issue of low motivation and high dropout rates in traditional self-paced technical learning.
+Duration: 3 Months (October 2025 - December 2025). The short timeline emphasizes the need for efficient development and clear component definition to achieve a highly functional Minimum Viable Product (MVP).
+Target Audience: Students (learners) seeking technical proficiency and Mentors/Teachers (educators) needing modern tools for engagement and evaluation.
+Target Subjects: The curriculum focuses on high-demand technical areas, including core Programming skills (multiple languages), deep study of Data Structures and Algorithms, modern Web development (Frontend and Backend), emerging fields like AI and ML, specialized Problem solving and competitive programming, and practical application development (App dev, Cyber security). This breadth ensures a comprehensive foundation for a career in technology.
+
+CORE FEATURES AND FUNCTIONALITY
+
+2.1. Student Learning Features
+
+Structured Learning Paths: Courses are broken down into granular, inter-dependent modules. Each module clearly defines prerequisites, estimated completion time, and learning outcomes. This systematic approach ensures a solid foundational understanding is achieved before students advance to more complex or abstract concepts, preventing knowledge gaps.
+
+LSS (Learning Sprint Session): These sessions are strategically placed at the conclusion of every major lesson. They comprise a mix of multiple-choice quizzes to test conceptual recall and short, auto-graded coding challenges to verify application skills. The instant feedback mechanism (green/red indicators, detailed error messages) solidifies concepts immediately and reinforces the correct methodology.
+
+Hands-on Coding Environment: A fully integrated, browser-based development environment eliminates the need for external setups. This environment supports multiple programming languages and includes features such as syntax highlighting, a live compiler, and custom test case input/output windows. This allows users to apply learned concepts immediately and observe the real-time execution of their code without leaving the instructional context.
+
+Progress Tracking: Personalized dashboards offer a dynamic visualization of the student’s journey. Metrics include total time spent learning, subjects mastered, current streak status, and detailed heatmaps that visually represent weak areas (e.g., specific algorithms or data structures where performance is consistently low). This data is crucial for self-correction and goal setting.
+
+AI-Based Personalization: The system leverages student performance data (LSS scores, time taken) to implement adaptive learning. Slow learners receive supplementary content, remedial exercises, and easier practice problems, ensuring comprehension. Conversely, advanced learners are automatically served harder, novel challenges and advanced modules to maintain engagement and accelerate their skill development, effectively addressing the "one-size-fits-all" limitation of traditional learning.
+
+Interactive Code Animations: Complex processes, such as the execution of sorting algorithms (e.g., Merge Sort) or the flow control of object-oriented concepts, are visualized through animated, step-by-step breakdowns. This visual explanation greatly enhances the understanding of abstract code logic and execution, transforming theoretical concepts into intuitive, observable processes.
+
+Technical Utilities: Beyond the core learning features, the platform prioritizes user comfort and accessibility. The secure user authentication is paramount for data integrity. The responsive web design ensures full functionality on mobile, tablet, and desktop devices. The inclusion of an offline mode is a critical feature for content accessibility in low-connectivity environments, and the night mode ensures reduced eye strain during extended study sessions.
+
+Community Feedback: The integrated review drop box serves as a continuous feedback loop. This mechanism allows developers to capture direct user sentiment, suggestions for new courses, and bug reports, fueling iterative platform improvement and ensuring the product remains highly user-centric.
+
+2.2. Gamification Engine and Motivation System
+The entire platform experience is reframed around game mechanics to drive engagement and consistency.
+
+XP (Experience Points): XP functions as the quantitative measure of effort and progress. Earning is comprehensive, rewarding not just rote completion but also specific quality behaviors, such as contributing valuable assistance to others in the community (e.g., answering forum questions or providing code reviews) or achieving a perfect score on a challenge.
+
+Earning examples: Completing a lesson (+50 XP), solving a quiz (+30 XP), finishing a project (+200 XP), maintaining a daily login streak (+20 XP, which scales with streak length), helping others in the community (+40 XP), perfect quiz score (+50 XP bonus).
+
+Levels: Levels mark distinct tiers of skill and knowledge. Moving from Level 1 (Novice) to Level 10 (Master) provides a powerful visual milestone. The escalating XP requirement (e.g., 10-20% growth per level) ensures that progression requires increasing commitment, rewarding dedication to long-term consistency.
+
+Achievement Badges: Badges are digital trophies that recognize skill specialization and behavioral traits. Examples include "Hello World," "Logic Builder" (Solve 5 coding problems), "Debug Hero" (Fix 10 coding bugs), "Algorithm Ace" (Solve 10 algorithm challenges). Additional badges will include "Full-Stack Initiate" for completing introductory web dev modules, "Community Contributor" for hitting a specific number of helpful posts, and "Project Pro" for deploying five mini-projects.
+
+Leaderboards: Leaderboards display the top users based on cumulative XP earned, fostering competitive learning across courses or globally. This public recognition serves as a potent extrinsic motivator, encouraging users to spend more time practicing.
+
+Daily Challenges and Streaks: This system is critical for combating inconsistency. Daily puzzles and short, relevant coding problems keep the user logging in. The streak counter provides a powerful psychological incentive to avoid breaking a practice chain, turning learning into a positive habit.
+
+Recognition: Formal Certificates of Completion will be awarded upon completing entire learning paths. Achievement boards will permanently display a user's collection of badges and notable milestones, reinforcing pride and confidence.
+
+Mini-Games: These gamified modules make practice fun and light.
+
+Debug Hunt: Players are presented with broken, non-functioning code and must identify and fix the bug under a time limit, directly training critical debugging skills.
+
+Logic Rush: Timed algorithmic puzzles that require quick problem decomposition and logical thinking, serving as a fun alternative to standard practice.
+
+Quiz Battles: A real-time, synchronous 1v1 quiz mode where learners compete head-to-head for bonus XP and leaderboard ranking, adding a high-stakes, social element to knowledge testing.
+
+2.3. Teacher/Mentor Features
+
+Mentor-Led Gamified Sessions: The Mentor Portal empowers educators to become "Quest Givers." Mentors can dynamically deploy custom quizzes and coding challenges to their specific student groups in a real-time environment. They can also create unique badges relevant to their course syllabus and manually award bonus XP for exceptional classroom performance or insightful contributions.
+
+Automatic Assignment Evaluation: The platform automatically grades coding submissions and quizzes based on predefined test cases and acceptance criteria. This feature drastically reduces the administrative burden on teachers, freeing up valuable time that can be redirected toward providing one-on-one mentorship and concept explanation.
+
+Detailed Analytics and Reports: Teachers gain access to a powerful suite of performance dashboards that provide aggregate and individual student data. Reports include class-wide performance heatmaps, average time-to-completion metrics, and early warning flags for students showing signs of struggle, allowing for proactive intervention.
+
+Gamified Teaching Tools: Teachers can utilize the same gamification mechanics (XP, challenges, badges) to design their own interactive classroom lessons, ensuring students remain actively engaged and motivated throughout the learning process.
+
+TECHNOLOGY STACK
+
+The platform is designed using a modern, scalable, and efficient stack to support real-time interactions, heavy processing (auto-grading), and high data integrity.
+
+Frontend: React.js and Tailwind CSS. The use of React.js ensures a fast, dynamic, and component-based user interface, essential for rapid updates in the integrated coding environment and real-time quiz battles. Tailwind CSS is utilized as a utility-first framework to rapidly develop a highly customized, visually engaging, and responsive gamified UI without relying on bulky, monolithic CSS frameworks.
+
+Backend: Node.js, Express.js, and Java Spring Boot. The backend employs a microservices or hybrid architecture. Node.js with Express.js is chosen for high-speed, non-blocking I/O operations, making it ideal for managing the API gateway and real-time features like chat and leaderboard updates. Java Spring Boot is integrated to handle mission-critical, high-computational tasks, such as the complex auto-grading engine for code submissions and the asynchronous calculation of large-scale gamification metrics, leveraging Java's stability and performance for heavy lifting.
+
+Database: PostgreSQL. Selected as the primary object-relational database for its ACID compliance (ensuring data integrity for user progress and financial transactions, if applicable later) and its advanced features like JSONB support and complex querying capabilities. PostgreSQL is perfectly suited to manage the complex, relational data structure required for user accounts, course hierarchies, achievement mapping, and detailed progress tracking.
+
+PROJECT MILESTONES AND TEAM
+
+4.1. Project Milestones (MVP Target: December 2025)
+
+Phase 1 (October 2025): Foundation & Planning
+
+Detailed technical architecture documentation, including the breakdown of services between Node.js/Express and Java Spring Boot.
+
+Finalization of the PostgreSQL database schema, including tables for users, courses, lessons, and the initial gamification tables (XP, badges).
+
+Comprehensive UI/UX wireframes and mockups for the core Student Dashboard and a single Lesson Page.
+
+Definition of API contracts for core services (Authentication, Content Retrieval).
+
+Phase 2 (November 2025): Core Feature Development
+
+Full implementation of the secure user authentication system (user sign-up/login).
+
+Development and population of the first structured learning path (e.g., Python Basics).
+
+MVP build of the Hands-on Coding Environment, capable of compiling and running code for one language.
+
+Completion of the Student Progress Tracking dashboard with basic metrics.
+
+Phase 3 (December 2025): Gamification & Launch Prep
+
+Integration of the full Gamification Engine, including real-time XP calculation, level progression logic, and badge awarding triggers.
+
+Development of the Mentor Portal MVP, allowing the creation and deployment of custom LSS sessions.
+
+Thorough end-to-end testing, bug fixing, and performance optimization (especially for the auto-grading service).
+
+Final preparation for launch, including documentation and deployment infrastructure setup.
+
+4.2. Team Roles and Responsibilities
+
+Frontend Development: Gayatri Goswami and Nakul Gola. Their key focus is on creating a highly responsive, intuitive, and visually engaging UI/client-side experience, ensuring cross-browser compatibility and optimal mobile performance. They are responsible for implementing the Tailwind CSS design system.
+
+Backend Development: Jayveer Singh and Aniket Sen. Responsible for the implementation of the core server-side logic, PostgreSQL database management, and the development of the high-performance APIs. They will specifically architect the division of work between the Node.js API layer and the Java Spring Boot computation service.
+
+UI/UX and Coordination: This role is critical in the planning phase, ensuring the project scope remains aligned with the user-centric goal, creating detailed UI designs, and maintaining the flow of communication and task division across the frontend and backend teams throughout the development lifecycle.
