@@ -1,0 +1,146 @@
+import { useEffect, useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
+import { mentorAPI } from '../services/api';
+import '../styles/mentor-portal.css';
+
+export const MentorPortal = () => {
+  const { user } = useAuth();
+  const [stats, setStats] = useState(null);
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user?.user_type !== 'mentor') {
+      return;
+    }
+    fetchMentorData();
+  }, [user]);
+
+  const fetchMentorData = async () => {
+    try {
+      const [statsRes, coursesRes] = await Promise.all([
+        mentorAPI.getMentorStats(),
+        mentorAPI.getMentorCourses(),
+      ]);
+
+      setStats(statsRes.data);
+      setCourses(coursesRes.data);
+    } catch (error) {
+      console.error('Failed to fetch mentor data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (user?.user_type !== 'mentor') {
+    return (
+      <div className="mentor-access-denied">
+        <h2>Access Denied</h2>
+        <p>This page is only accessible to mentors.</p>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return <div className="mentor-loading">Loading mentor portal...</div>;
+  }
+
+  return (
+    <div className="mentor-portal">
+      <div className="mentor-header">
+        <h1>👨‍🏫 Mentor Portal</h1>
+        <p>Welcome back, {user?.full_name || user?.username}</p>
+      </div>
+
+      {stats && (
+        <div className="mentor-stats">
+          <div className="stat-card">
+            <div className="stat-icon">📚</div>
+            <div className="stat-content">
+              <h3>Courses Created</h3>
+              <div className="stat-value">{stats.courses_created}</div>
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon">👥</div>
+            <div className="stat-content">
+              <h3>Total Students</h3>
+              <div className="stat-value">{stats.total_students}</div>
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon">📊</div>
+            <div className="stat-content">
+              <h3>Avg Progress</h3>
+              <div className="stat-value">{stats.avg_student_progress}%</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="mentor-section">
+        <h2>📖 Your Courses</h2>
+
+        {courses.length > 0 ? (
+          <div className="courses-table">
+            <div className="table-header">
+              <div>Course</div>
+              <div>Students</div>
+              <div>Progress</div>
+              <div>Actions</div>
+            </div>
+
+            {courses.map((course) => (
+              <div key={course.id} className="table-row">
+                <div className="course-name">{course.title}</div>
+                <div className="student-count">{course.student_count || 0}</div>
+                <div className="progress">
+                  <div className="progress-bar">
+                    <div
+                      className="progress-fill"
+                      style={{ width: `${course.avg_progress || 0}%` }}
+                    ></div>
+                  </div>
+                  <span>{Math.round(course.avg_progress) || 0}%</span>
+                </div>
+                <div className="actions">
+                  <button className="btn-small">View Students</button>
+                  <button className="btn-small">Edit</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="no-courses">
+            <p>No courses created yet. Create your first course to get started!</p>
+            <button className="btn-primary">Create Course</button>
+          </div>
+        )}
+      </div>
+
+      <div className="mentor-section">
+        <h2>🎁 Quick Actions</h2>
+        <div className="quick-actions">
+          <button className="action-btn">
+            <div className="action-icon">➕</div>
+            <div className="action-text">Create Course</div>
+          </button>
+          <button className="action-btn">
+            <div className="action-icon">🎯</div>
+            <div className="action-text">Create Daily Challenge</div>
+          </button>
+          <button className="action-btn">
+            <div className="action-icon">🎓</div>
+            <div className="action-text">Create Quiz</div>
+          </button>
+          <button className="action-btn">
+            <div className="action-icon">🏆</div>
+            <div className="action-text">Award Badge</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
