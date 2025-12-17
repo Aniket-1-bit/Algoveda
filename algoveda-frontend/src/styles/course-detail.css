@@ -8,7 +8,7 @@
 .course-error {
   text-align: center;
   padding: 3rem;
-  background: white;
+  background: var(--card-bg);
   border-radius: 1rem;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   color: var(--text-light);
@@ -113,7 +113,7 @@
   align-items: center;
   gap: 1rem;
   padding: 1.5rem;
-  background: white;
+  background: var(--card-bg);
   border-radius: 0.75rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   text-decoration: none;
@@ -177,7 +177,7 @@
 .no-lessons {
   padding: 3rem;
   text-align: center;
-  background: white;
+  background: var(--card-bg);
   border-radius: 0.75rem;
   border: 2px dashed var(--border-color);
   color: var(--text-light);
@@ -190,7 +190,7 @@
 }
 
 .info-card {
-  background: white;
+  background: var(--card-bg);
   padding: 1.5rem;
   border-radius: 0.75rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);

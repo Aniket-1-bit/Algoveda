@@ -7,6 +7,10 @@ const errorHandler = require('./middleware/errorHandler');
 const createRateLimiter = require('./middleware/rateLimiter');
 const { securityHeaders, sanitizeInput, validatePayloadSize } = require('./middleware/security');
 
+// Load environment variables
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
+dotenv.config({ path: envFile });
+
 // Routes
 const authRoutes = require('./routes/authRoutes');
 const courseRoutes = require('./routes/courseRoutes');
@@ -24,13 +28,15 @@ const searchRoutes = require('./routes/searchRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 
-dotenv.config();
-
 const app = express();
-const PORT = process.env.PORT || 5000;
+// Use Render's provided PORT or default to 5001
+const PORT = process.env.PORT || 5001;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [process.env.FRONTEND_URL || 'http://localhost:3000', 'http://localhost:3032', /\.onrender\.com$/],
+  credentials: true
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(securityHeaders);
 app.use(sanitizeInput);
@@ -43,9 +49,12 @@ const initializeApp = async () => {
     await pool.query('SELECT NOW()');
     console.log('✅ Database connection established');
     
-    console.log('🔧 Initializing database schema...');
-    await initializeDatabase();
-    console.log('✅ Database schema initialized');
+    // Only initialize database schema in development
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('🔧 Initializing database schema...');
+      await initializeDatabase();
+      console.log('✅ Database schema initialized');
+    }
   } catch (err) {
     console.error('❌ Failed to initialize database:', err.message);
     console.error('\n⚠️  Please check:');
@@ -77,22 +86,26 @@ app.use('/api/analytics', analyticsRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'Server is running', timestamp: new Date() });
+  res.json({ 
+    status: 'Server is running', 
+    timestamp: new Date(),
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
 
 // Error handler (must be last)
 app.use(errorHandler);
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log('\n========================================');
   console.log('🚀 ALGOVEDA Backend Server Running');
   console.log('========================================');
-  console.log(`📍 URL: http://localhost:${PORT}`);
+  console.log(`📍 URL: http://0.0.0.0:${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🗄️  Database: ${process.env.DB_NAME}@${process.env.DB_HOST}:${process.env.DB_PORT}`);
+  console.log(`🗄️  Database: ${process.env.DB_NAME || 'algoveda'}@${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '5432'}`);
   console.log('========================================\n');
   console.log('✅ Ready to accept requests!');
-  console.log('📖 API Docs: http://localhost:' + PORT + '/api/health');
+  console.log('📖 API Docs: http://0.0.0.0:' + PORT + '/api/health');
   console.log('\nPress Ctrl+C to stop the server\n');
 });

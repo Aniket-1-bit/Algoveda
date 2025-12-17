@@ -23,6 +23,7 @@ export const Navbar = () => {
           {isAuthenticated ? (
             <>
               <Link to="/dashboard">Dashboard</Link>
+              <Link to="/community">Community</Link>
               <Link to="/leaderboard">Leaderboard</Link>
               <Link to="/daily-challenge">Daily Challenge</Link>
               {user?.user_type === 'mentor' && <Link to="/mentor">Mentor Portal</Link>}

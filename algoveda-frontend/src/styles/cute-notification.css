@@ -1,0 +1,78 @@
+.cute-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: var(--card-bg);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.5rem;
+  box-shadow: 0 10px 25px var(--shadow-strong);
+  border-left: 4px solid var(--primary-color);
+  z-index: 1000;
+  transform: translateX(120%);
+  animation: slideIn 0.3s forwards;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 350px;
+}
+
+.cute-notification.show {
+  animation: slideIn 0.3s forwards;
+}
+
+.cute-notification.success {
+  border-left-color: var(--accent-color);
+}
+
+.cute-notification.error {
+  border-left-color: var(--danger-color);
+}
+
+.cute-notification.warning {
+  border-left-color: var(--warning-color);
+}
+
+.notification-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-dark);
+}
+
+.notification-message {
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-light);
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.close-button:hover {
+  background: var(--border-color);
+  color: var(--text-dark);
+}
+
+@keyframes slideIn {
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  to {
+    transform: translateX(120%);
+  }
+}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useToast } from '../context/ToastContext';
 import { authAPI } from '../services/api';
 import '../styles/auth.css';
 
@@ -16,6 +17,7 @@ export const Register = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { showToast } = useToast();
 
   const handleChange = (e) => {
     setFormData({
@@ -29,9 +31,17 @@ export const Register = () => {
     setError('');
     setLoading(true);
 
+    // Basic validation
+    if (!formData.username || !formData.email || !formData.password) {
+      setError('Username, email, and password are required');
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await authAPI.register(formData);
       const { user } = response.data;
+      
       // Auto-login after registration
       const loginResponse = await authAPI.login({
         email: formData.email,
@@ -39,9 +49,13 @@ export const Register = () => {
       });
       const { token } = loginResponse.data;
       login(user, token);
+      
+      showToast('Account created successfully! Welcome to ALGOVEDA.', 'success');
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      const errorMessage = err.response?.data?.message || 'Registration failed. Please try again.';
+      setError(errorMessage);
+      showToast(errorMessage, 'error');
     } finally {
       setLoading(false);
     }
@@ -49,7 +63,7 @@ export const Register = () => {
 
   return (
     <div className="auth-container">
-      <div className="auth-card">
+      <div className="auth-card card">
         <h2>Join ALGOVEDA</h2>
         <p className="auth-subtitle">Start your learning journey today</p>
         {error && <div className="error-message">{error}</div>}
@@ -64,6 +78,7 @@ export const Register = () => {
               onChange={handleChange}
               required
               placeholder="Choose a username"
+              disabled={loading}
             />
           </div>
           <div className="form-group">
@@ -75,6 +90,7 @@ export const Register = () => {
               value={formData.full_name}
               onChange={handleChange}
               placeholder="Your full name (optional)"
+              disabled={loading}
             />
           </div>
           <div className="form-group">
@@ -87,6 +103,7 @@ export const Register = () => {
               onChange={handleChange}
               required
               placeholder="you@example.com"
+              disabled={loading}
             />
           </div>
           <div className="form-group">
@@ -99,6 +116,7 @@ export const Register = () => {
               onChange={handleChange}
               required
               placeholder="••••••••"
+              disabled={loading}
             />
           </div>
           <div className="form-group">
@@ -108,6 +126,7 @@ export const Register = () => {
               name="user_type"
               value={formData.user_type}
               onChange={handleChange}
+              disabled={loading}
             >
               <option value="student">Student</option>
               <option value="mentor">Mentor/Teacher</option>

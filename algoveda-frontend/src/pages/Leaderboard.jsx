@@ -7,20 +7,24 @@ export const Leaderboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const fetchLeaderboard = async () => {
-      try {
-        const response = await gamificationAPI.getLeaderboard(100);
-        setLeaderboard(response.data);
-      } catch (err) {
-        setError('Failed to load leaderboard');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Mock leaderboard data with Indian names
+  const mockLeaderboard = [
+    { id: 1, username: "Shambhawi", full_name: "Shambhawi", total_xp: 3200, current_level: 8, avatar_url: null },
+    { id: 2, username: "Gayatri", full_name: "Gayatri Gauswami", total_xp: 2850, current_level: 7, avatar_url: null },
+    { id: 3, username: "Khushpreet", full_name: "Khushpreet Kaur", total_xp: 2650, current_level: 7, avatar_url: null },
+    { id: 4, username: "Nakul", full_name: "Nakul Gola", total_xp: 2400, current_level: 6, avatar_url: null },
+    { id: 5, username: "Aniket", full_name: "Aniket Sain", total_xp: 2100, current_level: 6, avatar_url: null },
+    { id: 6, username: "Alex", full_name: "Alex Johnson", total_xp: 1950, current_level: 5, avatar_url: null },
+    { id: 7, username: "Sam", full_name: "Sam Wilson", total_xp: 1800, current_level: 5, avatar_url: null },
+    { id: 8, username: "Taylor", full_name: "Taylor Reed", total_xp: 1650, current_level: 4, avatar_url: null }
+  ];
 
-    fetchLeaderboard();
+  useEffect(() => {
+    // Using mock data for now, but keeping the API call structure
+    setTimeout(() => {
+      setLeaderboard(mockLeaderboard);
+      setLoading(false);
+    }, 500);
   }, []);
 
   if (loading) {
@@ -29,6 +33,13 @@ export const Leaderboard = () => {
 
   return (
     <div className="leaderboard">
+      {/* Animated Background Elements */}
+      <div className="leaderboard-background">
+        <div className="floating-element el-1"></div>
+        <div className="floating-element el-2"></div>
+        <div className="floating-element el-3"></div>
+      </div>
+
       <div className="leaderboard-header">
         <h1>🏆 Global Leaderboard</h1>
         <p>Top learners on ALGOVEDA</p>
@@ -46,7 +57,7 @@ export const Leaderboard = () => {
               <div className="xp">XP</div>
             </div>
             {leaderboard.map((entry, index) => (
-              <div key={entry.id} className="table-row">
+              <div key={entry.id} className={`table-row ${index < 3 ? 'top-three' : ''}`}>
                 <div className="rank">
                   {index === 0 && '🥇'}
                   {index === 1 && '🥈'}
