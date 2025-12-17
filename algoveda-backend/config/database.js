@@ -21,10 +21,16 @@ if (process.env.DATABASE_URL) {
       user: url.username,
       password: url.password,
     };
+    console.log('Using DATABASE_URL for connection');
   } catch (error) {
     console.warn('Warning: Could not parse DATABASE_URL, using individual DB environment variables');
   }
 }
+
+// Add SSL configuration for Render production
+const sslConfig = process.env.NODE_ENV === 'production' ? {
+  rejectUnauthorized: false
+} : false;
 
 const pool = new Pool({
   host: dbConfig.host,
@@ -32,7 +38,10 @@ const pool = new Pool({
   database: dbConfig.database,
   user: dbConfig.user,
   password: dbConfig.password,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  ssl: sslConfig,
+  connectionTimeoutMillis: 5000, // 5 second timeout
+  idleTimeoutMillis: 30000, // 30 seconds idle timeout
+  max: 10, // Maximum 10 connections
 });
 
 pool.on('connect', () => {
@@ -43,5 +52,21 @@ pool.on('error', (err) => {
   console.error('Unexpected error on idle client', err);
   process.exit(-1);
 });
+
+// Test connection on startup
+const testConnection = async () => {
+  try {
+    const client = await pool.connect();
+    console.log('✅ Database connection test successful');
+    client.release();
+  } catch (err) {
+    console.error('❌ Database connection test failed:', err.message);
+  }
+};
+
+// Run test connection in development only
+if (process.env.NODE_ENV !== 'production') {
+  testConnection();
+}
 
 module.exports = pool;

@@ -34,7 +34,7 @@ const PORT = process.env.PORT || 5001;
 
 // Middleware
 app.use(cors({
-  origin: [process.env.FRONTEND_URL || 'http://localhost:3000', 'http://localhost:3032', /\.onrender\.com$/],
+  origin: [process.env.FRONTEND_URL || 'http://localhost:3000', 'http://localhost:3032', /\.onrender\.com$/, /\.algoveda\.onrender\.com$/],
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -61,9 +61,21 @@ const initializeApp = async () => {
     console.error('1. PostgreSQL is installed and running');
     console.error('2. Database credentials in .env file are correct');
     console.error('3. Database "algoveda" exists (run: npm run init-db)\n');
-    process.exit(1);
+    
+    // In production, we don't want to exit if database fails initially
+    if (process.env.NODE_ENV !== 'production') {
+      process.exit(1);
+    }
   }
 };
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  server.close(() => {
+    console.log('Process terminated');
+  });
+});
 
 initializeApp();
 
@@ -93,11 +105,20 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Root endpoint for basic verification
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'ALGOVEDA Backend Server is running!',
+    timestamp: new Date(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
 // Error handler (must be last)
 app.use(errorHandler);
 
 // Start server
-app.listen(PORT, '0.0.0.0', () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log('\n========================================');
   console.log('🚀 ALGOVEDA Backend Server Running');
   console.log('========================================');
