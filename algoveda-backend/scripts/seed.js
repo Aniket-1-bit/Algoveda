@@ -46,6 +46,9 @@ const seedDatabase = async () => {
       );
       if (result.rows[0]) {
         students.push(result.rows[0]);
+      } else {
+        const existingStudent = await pool.query('SELECT id FROM users WHERE username = $1', [`student${i}`]);
+        students.push(existingStudent.rows[0]);
       }
     }
 
@@ -89,10 +92,10 @@ const seedDatabase = async () => {
     // Create sample lessons for first course
     const lessons = [];
     const lessonData = [
-      { title: 'Introduction to Python', description: 'Get started with Python' },
-      { title: 'Variables and Data Types', description: 'Learn about Python data types' },
+      { title: 'Introduction', description: 'Get started with the language' },
+      { title: 'Variables and Data Types', description: 'Learn about data types' },
       { title: 'Control Flow', description: 'Conditionals and loops' },
-      { title: 'Functions', description: 'Writing reusable functions' },
+      { title: 'Functions', description: 'Writing reusable code' },
     ];
 
     for (let i = 0; i < lessonData.length; i++) {
@@ -160,6 +163,34 @@ const seedDatabase = async () => {
     }
 
     console.log(`✅ Enrolled students in courses`);
+
+    // Create sample progress for students
+    for (const student of students) {
+      for (const course of courses) {
+        // Find lessons for this course
+        const lessonsRes = await pool.query('SELECT id FROM lessons WHERE course_id = $1', [course.id]);
+
+        for (const lesson of lessonsRes.rows) {
+          // Randomly decide if student has started/completed this lesson
+          const status = Math.random();
+          if (status > 0.3) { // 70% chance they started/completed
+            const completed = status > 0.6; // 40% chance they completed
+            const percentage = completed ? 100 : Math.floor(Math.random() * 90) + 10;
+
+            await pool.query(
+              `INSERT INTO user_progress (user_id, lesson_id, completed, completion_percentage, started_at, completed_at)
+               VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP - INTERVAL '1 day', $5)
+               ON CONFLICT (user_id, lesson_id) DO UPDATE SET 
+               completed = EXCLUDED.completed, 
+               completion_percentage = EXCLUDED.completion_percentage`,
+              [student.id, lesson.id, completed, percentage, completed ? new Date() : null]
+            );
+          }
+        }
+      }
+    }
+
+    console.log(`✅ Created sample progress for students`);
 
     console.log('\n🎉 Database seeding completed successfully!');
     console.log('\n📝 Sample Credentials:');

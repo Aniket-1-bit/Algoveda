@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { progressAPI, courseAPI, gamificationAPI } from '../services/api';
+import { progressAPI, courseAPI, gamificationAPI, mentorAPI } from '../services/api';
 import { StudyTimer } from '../components/StudyTimer';
 import { UpcomingLessons } from '../components/UpcomingLessons';
 import { RecentActivity } from '../components/RecentActivity';
@@ -12,9 +12,9 @@ import '../styles/dashboard.css';
 // --- MOCK DATA CONSTANTS (Moved outside component to prevent re-renders) ---
 
 const mentorLessons = [
-  { id: 1, title: "React State Management", course: "Advanced React", time: "Today, 5:00 PM", instructor: "You", reminderSet: true },
-  { id: 2, title: "Database Normalization", course: "SQL Fundamentals", time: "Tomorrow, 11:00 AM", instructor: "You", reminderSet: false },
-  { id: 3, title: "Code Review Session", course: "Full Stack Bootcamp", time: "Fri, 2:00 PM", instructor: "You", reminderSet: false }
+  { id: 1, title: "Python Basics", course: "Python Fundamentals", time: "Today, 5:00 PM", instructor: "You", reminderSet: true },
+  { id: 2, title: "Array Operations", course: "Data Structures & Algorithms", time: "Tomorrow, 11:00 AM", instructor: "You", reminderSet: false },
+  { id: 3, title: "DOM Manipulation", course: "JavaScript Mastery", time: "Fri, 2:00 PM", instructor: "You", reminderSet: false }
 ];
 
 const mentorActivity = [
@@ -25,9 +25,9 @@ const mentorActivity = [
 ];
 
 const mockCourses = [
-  { id: 1, title: "React Mastery", difficulty_level: "advanced", completion_percentage: 45, completed_lessons: 12, total_lessons: 25 },
-  { id: 2, title: "Data Structures & Algorithms", difficulty_level: "intermediate", completion_percentage: 30, completed_lessons: 8, total_lessons: 24 },
-  { id: 3, title: "System Design Interview Prep", difficulty_level: "advanced", completion_percentage: 10, completed_lessons: 3, total_lessons: 30 },
+  { id: 1, title: "Python Fundamentals", difficulty_level: "beginner", completion_percentage: 45, completed_lessons: 12, total_lessons: 25, student_count: 5 },
+  { id: 2, title: "JavaScript Mastery", difficulty_level: "intermediate", completion_percentage: 30, completed_lessons: 8, total_lessons: 24, student_count: 5 },
+  { id: 3, title: "Data Structures & Algorithms", difficulty_level: "advanced", completion_percentage: 10, completed_lessons: 3, total_lessons: 30, student_count: 5 },
 ];
 
 const mockBadges = [
@@ -77,7 +77,28 @@ export const Dashboard = () => {
           });
           setProgress(progressData);
         } else {
-          // For mentor, we might want to fetch other things, but for now it's static
+          // For mentor, fetch actual courses and stats separately for resilience
+          try {
+            const statsRes = await mentorAPI.getMentorStats();
+            setStats({
+              totalXP: statsRes.data.courses_created || 0,
+              currentLevel: statsRes.data.total_students || 0,
+              dailyStreak: statsRes.data.avg_student_progress || 0
+            });
+          } catch (e) {
+            console.error('Failed to fetch mentor stats:', e);
+          }
+
+          try {
+            const coursesRes = await mentorAPI.getMentorCourses();
+            console.log('Fetched mentor courses:', coursesRes.data);
+            const data = coursesRes.data && coursesRes.data.length > 0 ? coursesRes.data : mockCourses;
+            setCourses(data);
+          } catch (e) {
+            console.error('Failed to fetch mentor courses:', e);
+            // Fallback to mock data in development if API fails
+            setCourses(mockCourses);
+          }
         }
 
       } catch (err) {
@@ -88,7 +109,7 @@ export const Dashboard = () => {
     };
 
     fetchData();
-  }, [isMentor]);
+  }, [isMentor, user]);
 
   if (loading) {
     return <LoadingSpinner message="Loading your dashboard..." />;
@@ -128,20 +149,26 @@ export const Dashboard = () => {
                 <div className="card-icon">🛠️</div>
               </div>
               <div style={{ display: 'flex', gap: '1rem', flexDirection: 'column' }}>
-                <div className="course-progress-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <b>Advanced React</b>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>35 Students Enrolled</p>
-                  </div>
-                  <Link to="/mentor/course/1" className="btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}>Manage</Link>
-                </div>
-                <div className="course-progress-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <b>SQL Fundamentals</b>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>12 Students Enrolled</p>
-                  </div>
-                  <Link to="/mentor/course/2" className="btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}>Manage</Link>
-                </div>
+                {courses.length > 0 ? (
+                  courses.map(course => (
+                    <div key={course.id} className="course-progress-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <b>{course.title}</b>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>
+                          {course.student_count || 0} Students Enrolled
+                        </p>
+                      </div>
+                      <Link to={`/mentor/course/${course.id}`} className="btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}>Manage</Link>
+                    </div>
+                  ))
+                ) : (
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-light)', textAlign: 'center' }}>No courses created yet.</p>
+                )}
+                {courses.length > 0 && (
+                  <Link to="/mentor/portal" className="see-all-link" style={{ fontSize: '0.85rem', color: 'var(--primary-color)', textAlign: 'right' }}>
+                    View all courses in Portal →
+                  </Link>
+                )}
               </div>
             </div>
 
@@ -152,13 +179,16 @@ export const Dashboard = () => {
               </div>
               <ul style={{ listStyle: 'none', padding: 0 }}>
                 <li style={{ borderBottom: '1px solid var(--border-color)', padding: '0.5rem 0', fontSize: '0.9rem' }}>
-                  <b>Alice</b> completed <i>React Hooks</i>
+                  <b>Student 1</b> completed <i>Variables and Data Types</i>
                 </li>
                 <li style={{ borderBottom: '1px solid var(--border-color)', padding: '0.5rem 0', fontSize: '0.9rem' }}>
-                  <b>Bob</b> started <i>SQL Indexing</i>
+                  <b>Student 2</b> started <i>Recursion</i>
+                </li>
+                <li style={{ borderBottom: '1px solid var(--border-color)', padding: '0.5rem 0', fontSize: '0.9rem' }}>
+                  <b>Student 3</b> scored 95% in JavaScript Quiz
                 </li>
                 <li style={{ padding: '0.5rem 0', fontSize: '0.9rem' }}>
-                  <b>Charlie</b> scored 90% in Quiz
+                  <b>Student 4</b> started <i>Graph Algorithms</i>
                 </li>
               </ul>
             </div>
@@ -238,10 +268,10 @@ export const Dashboard = () => {
                       </div>
                     );
                   })}
-                  {courses.length > 4 && (
+                  {courses.length > 0 && (
                     <div className="see-all-link">
                       <Link to="/courses" className="btn-secondary">
-                        View All Courses →
+                        View all courses in Portal →
                       </Link>
                     </div>
                   )}

@@ -43,7 +43,7 @@ const getMentorCourses = async (req, res, next) => {
               (SELECT AVG(completion_percentage) FROM user_progress up JOIN lessons l ON up.lesson_id = l.id WHERE l.course_id = c.id) as avg_progress
        FROM courses c 
        WHERE c.instructor_id = $1 
-       ORDER BY c.created_at DESC`,
+       ORDER BY c.id ASC`,
       [mentorId]
     );
 
