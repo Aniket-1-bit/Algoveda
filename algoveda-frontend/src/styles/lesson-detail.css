@@ -53,15 +53,20 @@
 }
 
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translate(0, 0) rotate(0deg);
   }
+
   25% {
     transform: translate(20px, 20px) rotate(90deg);
   }
+
   50% {
     transform: translate(0, 40px) rotate(180deg);
   }
+
   75% {
     transform: translate(-20px, 20px) rotate(270deg);
   }
@@ -158,16 +163,21 @@
 }
 
 .description p,
+.content-text p,
 .content-text {
   color: var(--text-light);
-  line-height: 1.7;
-  font-size: 1.1rem;
+  line-height: 1.8;
+  /* Increased line-height */
+  font-size: 1.15rem;
+  margin-bottom: 1.5rem;
+  /* Explicit margin between paragraphs */
 }
 
 .content-text h3 {
   color: var(--text-dark);
-  margin: 1.5rem 0 1rem;
-  font-size: 1.3rem;
+  margin: 2rem 0 1rem;
+  /* More space before headers */
+  font-size: 1.4rem;
 }
 
 .content-text h4 {
@@ -670,40 +680,40 @@
   .lesson-detail {
     padding: 1rem;
   }
-  
+
   .lesson-header h1 {
     font-size: 1.8rem;
   }
-  
+
   .lesson-tabs {
     flex-direction: column;
   }
-  
+
   .tab-button {
     width: 100%;
     text-align: center;
   }
-  
+
   .lesson-content,
   .code-editor-section,
   .quiz-section,
   .activity-detail {
     padding: 1.5rem;
   }
-  
+
   .editor-controls {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .gamification-stats {
     flex-direction: column;
   }
-  
+
   .stat-card {
     width: 100%;
   }
-  
+
   .activities-grid {
     grid-template-columns: 1fr;
   }

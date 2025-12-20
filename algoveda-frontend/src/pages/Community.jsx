@@ -110,17 +110,17 @@ export const Community = () => {
   }, []);
 
   const handleLikePost = (postId) => {
-    setPosts(posts.map(post => 
-      post.id === postId 
-        ? {...post, likes: post.likes + 1}
+    setPosts(posts.map(post =>
+      post.id === postId
+        ? { ...post, likes: post.likes + 1 }
         : post
     ));
   };
 
   const handleJoinGroup = (groupId) => {
-    setStudyGroups(studyGroups.map(group => 
-      group.id === groupId 
-        ? {...group, members: group.members + 1}
+    setStudyGroups(studyGroups.map(group =>
+      group.id === groupId
+        ? { ...group, members: group.members + 1 }
         : group
     ));
   };
@@ -140,25 +140,25 @@ export const Community = () => {
       </div>
 
       <div className="community-tabs">
-        <button 
+        <button
           className={`tab ${activeTab === 'discussions' ? 'active' : ''}`}
           onClick={() => setActiveTab('discussions')}
         >
           Discussions
         </button>
-        <button 
+        <button
           className={`tab ${activeTab === 'events' ? 'active' : ''}`}
           onClick={() => setActiveTab('events')}
         >
           Events
         </button>
-        <button 
+        <button
           className={`tab ${activeTab === 'groups' ? 'active' : ''}`}
           onClick={() => setActiveTab('groups')}
         >
           Study Groups
         </button>
-        <button 
+        <button
           className={`tab ${activeTab === 'leaderboard' ? 'active' : ''}`}
           onClick={() => setActiveTab('leaderboard')}
         >
@@ -166,14 +166,40 @@ export const Community = () => {
         </button>
       </div>
 
+      {/* New Post Modal/Overlay Simulation */}
+      {/* For simplicity in this iteration, we use prompt/confirm or inline state */}
+
       <div className="community-content">
         {activeTab === 'discussions' && (
           <div className="discussions-section">
             <div className="section-header">
               <h2>💬 Community Discussions</h2>
-              <button className="btn-primary">New Post</button>
+              <button
+                className="btn-primary"
+                onClick={() => {
+                  const title = prompt("Enter discussion title:");
+                  if (title) {
+                    const content = prompt("Enter discussion content:");
+                    if (content) {
+                      setPosts([{
+                        id: Date.now(),
+                        title,
+                        content,
+                        author: user?.full_name || "You",
+                        avatar: (user?.full_name || "Y").charAt(0),
+                        timestamp: "Just now",
+                        replies: 0,
+                        likes: 0,
+                        tags: ["New"],
+                      }, ...posts]);
+                    }
+                  }
+                }}
+              >
+                New Post
+              </button>
             </div>
-            
+
             <div className="posts-list">
               {posts.map(post => (
                 <div key={post.id} className="post-card">
@@ -190,23 +216,23 @@ export const Community = () => {
                       <span className="likes">👍 {post.likes}</span>
                     </div>
                   </div>
-                  
+
                   <div className="post-content">
                     <h3>{post.title}</h3>
                     <p>{post.content}</p>
-                    
+
                     <div className="post-tags">
                       {post.tags.map(tag => (
                         <span key={tag} className="tag">{tag}</span>
                       ))}
                     </div>
                   </div>
-                  
+
                   <div className="post-actions">
                     <button className="btn-secondary" onClick={() => handleLikePost(post.id)}>
-                      Like
+                      Like ({post.likes})
                     </button>
-                    <button className="btn-secondary">
+                    <button className="btn-secondary" onClick={() => alert("Reply feature coming soon!")}>
                       Reply
                     </button>
                   </div>
@@ -220,27 +246,43 @@ export const Community = () => {
           <div className="events-section">
             <div className="section-header">
               <h2>📅 Upcoming Events</h2>
-              <button className="btn-primary">Create Event</button>
+              <button
+                className="btn-primary"
+                onClick={() => {
+                  const title = prompt("Event Title:");
+                  if (title) setEvents([...events, {
+                    id: Date.now(),
+                    title,
+                    date: new Date().toISOString(),
+                    time: "12:00",
+                    attendees: 1,
+                    maxAttendees: 50,
+                    description: "New community event"
+                  }]);
+                }}
+              >
+                Create Event
+              </button>
             </div>
-            
+
             <div className="events-list">
               {events.map(event => (
                 <div key={event.id} className="event-card">
                   <div className="event-date">
-                    <div className="date">{new Date(event.date).getDate()}</div>
-                    <div className="month">{new Date(event.date).toLocaleString('default', { month: 'short' })}</div>
+                    <div className="date">{new Date(event.date).getDate() || 20}</div>
+                    <div className="month">{new Date(event.date).toLocaleString('default', { month: 'short' }) || "Dec"}</div>
                   </div>
-                  
+
                   <div className="event-details">
                     <h3>{event.title}</h3>
                     <p className="event-description">{event.description}</p>
-                    
+
                     <div className="event-meta">
                       <span>⏰ {event.time}</span>
                       <span>👥 {event.attendees}/{event.maxAttendees} attending</span>
                     </div>
-                    
-                    <button className="btn-primary">
+
+                    <button className="btn-primary" onClick={() => alert("You joined the event!")}>
                       Join Event
                     </button>
                   </div>
@@ -254,9 +296,14 @@ export const Community = () => {
           <div className="groups-section">
             <div className="section-header">
               <h2>🎓 Study Groups</h2>
-              <button className="btn-primary">Create Group</button>
+              <button
+                className="btn-primary"
+                onClick={() => alert("Create Group feature coming soon!")}
+              >
+                Create Group
+              </button>
             </div>
-            
+
             <div className="groups-list">
               {studyGroups.map(group => (
                 <div key={group.id} className="group-card">
@@ -264,14 +311,14 @@ export const Community = () => {
                     <h3>{group.name}</h3>
                     <span className="members">{group.members}/{group.maxMembers} members</span>
                   </div>
-                  
+
                   <p className="group-description">{group.description}</p>
-                  
+
                   <div className="group-meta">
                     <span>📅 Next meeting: {group.nextMeeting}</span>
                   </div>
-                  
-                  <button 
+
+                  <button
                     className="btn-primary"
                     onClick={() => handleJoinGroup(group.id)}
                     disabled={group.members >= group.maxMembers}
@@ -290,7 +337,7 @@ export const Community = () => {
               <h2>🏆 Learning Leaderboard</h2>
               <p>Top performers in our community</p>
             </div>
-            
+
             <div className="leaderboard-list">
               {mockLeaderboard.map((person, index) => (
                 <div key={person.id} className={`leaderboard-item ${index < 3 ? `rank-${index + 1}` : ''}`}>

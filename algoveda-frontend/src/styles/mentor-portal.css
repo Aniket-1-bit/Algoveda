@@ -105,6 +105,12 @@
   top: 0;
 }
 
+.course-name {
+  font-weight: 600;
+  color: var(--text-dark);
+  /* Ensures visibility in dark mode */
+}
+
 .table-row {
   display: grid;
   grid-template-columns: 2fr 1fr 1.5fr 1.5fr;
@@ -112,19 +118,13 @@
   padding: 1.5rem;
   border-bottom: 1px solid var(--border-color);
   align-items: center;
-}
-
-.table-row:last-child {
-  border-bottom: none;
+  background-color: var(--card-bg);
+  /* Explicit background for rows */
 }
 
 .table-row:hover {
   background: var(--light-bg);
-}
-
-.course-name {
-  font-weight: 600;
-  color: var(--text-dark);
+  /* Contrast on hover */
 }
 
 .student-count {
@@ -228,6 +228,22 @@
   font-size: 0.9rem;
 }
 
+/* Dark theme specific overrides for action buttons */
+[data-theme='dark'] .action-btn {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+[data-theme='dark'] .action-text {
+  color: var(--text-dark);
+  /* Ensure text is visible in dark mode */
+}
+
+[data-theme='dark'] .action-btn:hover {
+  border-color: var(--primary-color);
+  background-color: var(--light-bg);
+}
+
 @media (max-width: 968px) {
   .mentor-portal {
     padding: 1rem;
@@ -246,10 +262,10 @@
     grid-template-columns: 1fr 1fr;
   }
 
-  .table-header > div:nth-child(3),
-  .table-row > div:nth-child(3),
-  .table-header > div:nth-child(4),
-  .table-row > div:nth-child(4) {
+  .table-header>div:nth-child(3),
+  .table-row>div:nth-child(3),
+  .table-header>div:nth-child(4),
+  .table-row>div:nth-child(4) {
     display: none;
   }
 

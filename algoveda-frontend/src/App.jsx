@@ -18,6 +18,18 @@ import { Dashboard } from './pages/Dashboard';
 import { QuizGame } from './pages/QuizGame';
 import { MemoryGame } from './pages/MemoryGame';
 import { Community } from './pages/Community';
+import { Schedule } from './pages/Schedule';
+import { History } from './pages/History';
+import { ManageCourse } from './pages/ManageCourse';
+import { Enrollment } from './pages/Enrollment';
+import { Payment } from './pages/Payment';
+import { EditCourseContent } from './pages/mentor/EditCourseContent';
+import { CourseStudents } from './pages/mentor/CourseStudents';
+import { GradingDashboard } from './pages/mentor/GradingDashboard';
+import { CreateCourse } from './pages/mentor/CreateCourse';
+import { CreateChallenge } from './pages/mentor/CreateChallenge';
+import { CreateQuiz } from './pages/mentor/CreateQuiz';
+import { AwardBadge } from './pages/mentor/AwardBadge';
 
 function App() {
   const [theme, setTheme] = useState('light');
@@ -59,6 +71,14 @@ function App() {
             <Route path="/quiz-game" element={<QuizGame />} />
             <Route path="/memory-game" element={<MemoryGame />} />
             <Route path="/community" element={<Community />} />
+            <Route path="/schedule" element={<PrivateRoute><Schedule /></PrivateRoute>} />
+            <Route path="/history" element={<PrivateRoute><History /></PrivateRoute>} />
+            <Route path="/enroll/:courseId" element={<PrivateRoute><Enrollment /></PrivateRoute>} />
+            <Route path="/payment/:courseId" element={<PrivateRoute><Payment /></PrivateRoute>} />
+            <Route path="/mentor/course/:courseId" element={<PrivateRoute><ManageCourse /></PrivateRoute>} />
+            <Route path="/mentor/course/:courseId/edit" element={<PrivateRoute><EditCourseContent /></PrivateRoute>} />
+            <Route path="/mentor/course/:courseId/students" element={<PrivateRoute><CourseStudents /></PrivateRoute>} />
+            <Route path="/mentor/course/:courseId/grading" element={<PrivateRoute><GradingDashboard /></PrivateRoute>} />
             <Route
               path="/dashboard"
               element={

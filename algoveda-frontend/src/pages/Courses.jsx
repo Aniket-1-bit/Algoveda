@@ -43,7 +43,18 @@ export const Courses = () => {
     const fetchCourses = async () => {
       try {
         const response = await courseAPI.getAllCourses();
-        setCourses(response.data);
+        // Deduplicate courses based on title
+        const uniqueCoursesMap = new Map();
+        response.data.forEach(course => {
+          if (!uniqueCoursesMap.has(course.title)) {
+            // Mock Logic: Assign Price Type (Some free, some paid)
+            // Let's say courses with odd IDs are Free, even are Paid/Premium
+            // Or specific titles to be free
+            const isFree = course.id % 2 !== 0;
+            uniqueCoursesMap.set(course.title, { ...course, isPremium: !isFree });
+          }
+        });
+        setCourses(Array.from(uniqueCoursesMap.values()));
       } catch (err) {
         setError('Failed to fetch courses');
         console.error(err);
@@ -56,9 +67,9 @@ export const Courses = () => {
   }, []);
 
   const voteForSuggestion = (id) => {
-    setSuggestions(suggestions.map(suggestion => 
-      suggestion.id === id 
-        ? {...suggestion, votes: suggestion.votes + 1}
+    setSuggestions(suggestions.map(suggestion =>
+      suggestion.id === id
+        ? { ...suggestion, votes: suggestion.votes + 1 }
         : suggestion
     ));
   };
@@ -77,8 +88,9 @@ export const Courses = () => {
       {/* Course Suggestions Section */}
       <div className="suggestions-section">
         <h2>💡 Course Suggestions</h2>
-        <p>Vote for courses you'd like to see added to our platform!</p>
-        
+        {/* Added margin-bottom to prevent overlap */}
+        <p style={{ marginBottom: '2rem' }}>Vote for courses you'd like to see added to our platform!</p>
+
         <div className="suggestions-list">
           {suggestions.map((suggestion) => (
             <div key={suggestion.id} className="suggestion-card">
@@ -86,7 +98,7 @@ export const Courses = () => {
               <p>{suggestion.description}</p>
               <div className="suggestion-footer">
                 <span className="category-tag">{suggestion.category}</span>
-                <button 
+                <button
                   className="vote-button"
                   onClick={() => voteForSuggestion(suggestion.id)}
                 >
@@ -112,16 +124,23 @@ export const Courses = () => {
               <div key={course.id} className="course-card">
                 <div className="course-header">
                   <h3>{course.title}</h3>
-                  <span className={`difficulty ${course.difficulty_level}`}>
-                    {course.difficulty_level?.toUpperCase()}
-                  </span>
+                  <div className="course-badges">
+                    <span className={`difficulty ${course.difficulty_level}`}>
+                      {course.difficulty_level?.toUpperCase()}
+                    </span>
+                    {/* Badge for Premium/Free */}
+                    <span className={`difficulty ${course.isPremium ? 'advanced' : 'beginner'}`} style={{ backgroundColor: course.isPremium ? '#FEF3C7' : '#D1FAE5', color: course.isPremium ? '#D97706' : '#059669' }}>
+                      {course.isPremium ? 'PREMIUM' : 'FREE'}
+                    </span>
+                  </div>
                 </div>
                 <p className="course-description">{course.description}</p>
                 <div className="course-info">
                   <span className="duration">⏱️ {course.duration_hours || 0} hours</span>
+                  <span className="lessons-count">📚 {course.total_lessons || 12} Lessons</span>
                 </div>
                 <Link to={`/courses/${course.id}`} className="btn-primary">
-                  View Course
+                  {course.isPremium ? 'View Details' : 'Start Learning'}
                 </Link>
               </div>
             ))}

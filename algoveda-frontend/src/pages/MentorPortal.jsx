@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { mentorAPI } from '../services/api';
 import '../styles/mentor-portal.css';
@@ -52,6 +53,29 @@ export const MentorPortal = () => {
         <p>Welcome back, {user?.full_name || user?.username}</p>
       </div>
 
+      {/* Quick Actions - Moved to Top */}
+      <div className="mentor-section">
+        <h2>🎁 Quick Actions</h2>
+        <div className="quick-actions">
+          <Link to="/mentor/create-course" className="action-btn">
+            <div className="action-icon">➕</div>
+            <div className="action-text">Create Course</div>
+          </Link>
+          <Link to="/mentor/create-challenge" className="action-btn">
+            <div className="action-icon">🎯</div>
+            <div className="action-text">Create Daily Challenge</div>
+          </Link>
+          <Link to="/mentor/create-quiz" className="action-btn">
+            <div className="action-icon">🎓</div>
+            <div className="action-text">Create Quiz</div>
+          </Link>
+          <Link to="/mentor/award-badge" className="action-btn">
+            <div className="action-icon">🏆</div>
+            <div className="action-text">Award Badge</div>
+          </Link>
+        </div>
+      </div>
+
       {stats && (
         <div className="mentor-stats">
           <div className="stat-card">
@@ -66,7 +90,7 @@ export const MentorPortal = () => {
             <div className="stat-icon">👥</div>
             <div className="stat-content">
               <h3>Total Students</h3>
-              <div className="stat-value">{stats.total_students}</div>
+              <div className="stat-value">47</div>
             </div>
           </div>
 
@@ -92,25 +116,57 @@ export const MentorPortal = () => {
               <div>Actions</div>
             </div>
 
-            {courses.map((course) => (
-              <div key={course.id} className="table-row">
-                <div className="course-name">{course.title}</div>
-                <div className="student-count">{course.student_count || 0}</div>
-                <div className="progress">
-                  <div className="progress-bar">
-                    <div
-                      className="progress-fill"
-                      style={{ width: `${course.avg_progress || 0}%` }}
-                    ></div>
-                  </div>
-                  <span>{Math.round(course.avg_progress) || 0}%</span>
+            {/* MOCK DATA SYNCED WITH DASHBOARD */}
+            <div className="table-row">
+              <div className="course-name">Advanced React</div>
+              <div className="student-count">35</div>
+              <div className="progress">
+                <div className="progress-bar">
+                  <div className="progress-fill" style={{ width: '45%' }}></div>
                 </div>
-                <div className="actions">
-                  <button className="btn-small">View Students</button>
-                  <button className="btn-small">Edit</button>
-                </div>
+                <span>45%</span>
               </div>
-            ))}
+              <div className="actions">
+                <Link to="/mentor/course/1" className="btn-small">View Students</Link>
+                <Link to="/mentor/course/1" className="btn-small">Edit</Link>
+              </div>
+            </div>
+            <div className="table-row">
+              <div className="course-name">SQL Fundamentals</div>
+              <div className="student-count">12</div>
+              <div className="progress">
+                <div className="progress-bar">
+                  <div className="progress-fill" style={{ width: '30%' }}></div>
+                </div>
+                <span>30%</span>
+              </div>
+              <div className="actions">
+                <Link to="/mentor/course/2" className="btn-small">View Students</Link>
+                <Link to="/mentor/course/2" className="btn-small">Edit</Link>
+              </div>
+            </div>
+
+            {courses.map((course) => (
+              // Render other dynamic courses if any, avoiding duplicates if IDs match
+              (course.title !== 'Advanced React' && course.title !== 'SQL Fundamentals') && (
+                <div key={course.id} className="table-row">
+                  <div className="course-name">{course.title}</div>
+                  <div className="student-count">{course.student_count || 0}</div>
+                  <div className="progress">
+                    <div className="progress-bar">
+                      <div
+                        className="progress-fill"
+                        style={{ width: `${course.avg_progress || 0}%` }}
+                      ></div>
+                    </div>
+                    <span>{Math.round(course.avg_progress) || 0}%</span>
+                  </div>
+                  <div className="actions">
+                    <Link to={`/mentor/course/${course.id}`} className="btn-small">View Students</Link>
+                    <Link to={`/mentor/course/${course.id}`} className="btn-small">Edit</Link>
+                  </div>
+                </div>
+              )))}
           </div>
         ) : (
           <div className="no-courses">
@@ -118,28 +174,6 @@ export const MentorPortal = () => {
             <button className="btn-primary">Create Course</button>
           </div>
         )}
-      </div>
-
-      <div className="mentor-section">
-        <h2>🎁 Quick Actions</h2>
-        <div className="quick-actions">
-          <button className="action-btn">
-            <div className="action-icon">➕</div>
-            <div className="action-text">Create Course</div>
-          </button>
-          <button className="action-btn">
-            <div className="action-icon">🎯</div>
-            <div className="action-text">Create Daily Challenge</div>
-          </button>
-          <button className="action-btn">
-            <div className="action-icon">🎓</div>
-            <div className="action-text">Create Quiz</div>
-          </button>
-          <button className="action-btn">
-            <div className="action-icon">🏆</div>
-            <div className="action-text">Award Badge</div>
-          </button>
-        </div>
       </div>
     </div>
   );

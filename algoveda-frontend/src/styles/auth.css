@@ -1,12 +1,14 @@
 .auth-container {
-  min-height: calc(100vh - 80px);
+  min-height: 100vh;
+  /* changed from calc(100vh - 80px) to ensure full coverage */
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem;
   background: linear-gradient(135deg, var(--light-bg) 0%, #f3f4f6 100%);
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
+  /* allow scrolling if content overflows */
 }
 
 /* Add decorative elements for light theme */
@@ -218,8 +220,13 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .auth-links {
@@ -274,7 +281,7 @@
   .auth-card h2 {
     font-size: 1.5rem;
   }
-  
+
   .auth-container {
     padding: 1rem;
   }
