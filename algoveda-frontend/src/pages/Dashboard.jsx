@@ -205,7 +205,7 @@ export const Dashboard = () => {
               </div>
               {courses.length > 0 ? (
                 <div className="courses-progress">
-                  {courses.slice(0, 4).map((course) => {
+                  {courses.map((course) => {
                     const courseProgress = progress[course.id] || {};
                     const completionPercentage = courseProgress.completion_percentage || 0;
 

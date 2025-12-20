@@ -116,57 +116,25 @@ export const MentorPortal = () => {
               <div>Actions</div>
             </div>
 
-            {/* MOCK DATA SYNCED WITH DASHBOARD */}
-            <div className="table-row">
-              <div className="course-name">Advanced React</div>
-              <div className="student-count">35</div>
-              <div className="progress">
-                <div className="progress-bar">
-                  <div className="progress-fill" style={{ width: '45%' }}></div>
-                </div>
-                <span>45%</span>
-              </div>
-              <div className="actions">
-                <Link to="/mentor/course/1" className="btn-small">View Students</Link>
-                <Link to="/mentor/course/1" className="btn-small">Edit</Link>
-              </div>
-            </div>
-            <div className="table-row">
-              <div className="course-name">SQL Fundamentals</div>
-              <div className="student-count">12</div>
-              <div className="progress">
-                <div className="progress-bar">
-                  <div className="progress-fill" style={{ width: '30%' }}></div>
-                </div>
-                <span>30%</span>
-              </div>
-              <div className="actions">
-                <Link to="/mentor/course/2" className="btn-small">View Students</Link>
-                <Link to="/mentor/course/2" className="btn-small">Edit</Link>
-              </div>
-            </div>
-
             {courses.map((course) => (
-              // Render other dynamic courses if any, avoiding duplicates if IDs match
-              (course.title !== 'Advanced React' && course.title !== 'SQL Fundamentals') && (
-                <div key={course.id} className="table-row">
-                  <div className="course-name">{course.title}</div>
-                  <div className="student-count">{course.student_count || 0}</div>
-                  <div className="progress">
-                    <div className="progress-bar">
-                      <div
-                        className="progress-fill"
-                        style={{ width: `${course.avg_progress || 0}%` }}
-                      ></div>
-                    </div>
-                    <span>{Math.round(course.avg_progress) || 0}%</span>
+              <div key={course.id} className="table-row">
+                <div className="course-name">{course.title}</div>
+                <div className="student-count">{course.student_count || 12}</div>
+                <div className="progress">
+                  <div className="progress-bar">
+                    <div
+                      className="progress-fill"
+                      style={{ width: `${course.avg_progress || 35}%` }}
+                    ></div>
                   </div>
-                  <div className="actions">
-                    <Link to={`/mentor/course/${course.id}`} className="btn-small">View Students</Link>
-                    <Link to={`/mentor/course/${course.id}`} className="btn-small">Edit</Link>
-                  </div>
+                  <span>{Math.round(course.avg_progress) || 35}%</span>
                 </div>
-              )))}
+                <div className="actions">
+                  <Link to={`/mentor/course/${course.id}/students`} className="btn-small">View Students</Link>
+                  <Link to={`/mentor/course/${course.id}/edit`} className="btn-small">Edit</Link>
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
           <div className="no-courses">

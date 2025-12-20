@@ -103,26 +103,51 @@ export const Community = () => {
     { id: 5, name: "Aniket", xp: 2100, streak: 20, avatar: "A" }
   ];
 
+  // Load data from local storage where available, mixing with mocks if needed
   useEffect(() => {
-    setPosts(mockPosts);
-    setEvents(mockEvents);
-    setStudyGroups(mockStudyGroups);
+    const storedPosts = JSON.parse(localStorage.getItem('community_posts') || '[]');
+    setPosts([...storedPosts, ...mockPosts]); // Naive merge for demo
+
+    const storedEvents = JSON.parse(localStorage.getItem('community_events') || '[]');
+    setEvents([...storedEvents, ...mockEvents]);
+
+    const storedGroups = JSON.parse(localStorage.getItem('community_groups') || '[]');
+    setStudyGroups([...storedGroups, ...mockStudyGroups]);
   }, []);
 
   const handleLikePost = (postId) => {
+    // Basic optimistic UI update
     setPosts(posts.map(post =>
-      post.id === postId
-        ? { ...post, likes: post.likes + 1 }
-        : post
+      post.id === postId ? { ...post, likes: (post.likes || 0) + 1 } : post
     ));
+    // In real app, persist this
   };
 
-  const handleJoinGroup = (groupId) => {
-    setStudyGroups(studyGroups.map(group =>
-      group.id === groupId
-        ? { ...group, members: group.members + 1 }
-        : group
-    ));
+  const isJoined = (type, id) => {
+    const joinedKey = type === 'event' ? 'my_events' : 'my_groups';
+    const joinedList = JSON.parse(localStorage.getItem(joinedKey) || '[]');
+    return joinedList.includes(id);
+  };
+
+  const handleJoinToggle = (type, id) => {
+    const joinedKey = type === 'event' ? 'my_events' : 'my_groups';
+    let joinedList = JSON.parse(localStorage.getItem(joinedKey) || '[]');
+
+    if (joinedList.includes(id)) {
+      joinedList = joinedList.filter(itemId => itemId !== id);
+    } else {
+      joinedList.push(id);
+    }
+    localStorage.setItem(joinedKey, JSON.stringify(joinedList));
+
+    // Force re-render just by state update or simple trick
+    // Better way: update local state mapping of joined IDs
+    // For now, we force update by spreading events/groups to trigger re-render if we were using derived state
+    // but here we just rely on react re-rendering parent.
+    // Actually, we need to update state to see immediate effect if we derived 'isJoined' from render.
+    // We'll use a dummy state or just refetch.
+    setEvents([...events]);
+    setStudyGroups([...studyGroups]);
   };
 
   return (
@@ -166,38 +191,14 @@ export const Community = () => {
         </button>
       </div>
 
-      {/* New Post Modal/Overlay Simulation */}
-      {/* For simplicity in this iteration, we use prompt/confirm or inline state */}
-
       <div className="community-content">
         {activeTab === 'discussions' && (
           <div className="discussions-section">
             <div className="section-header">
               <h2>💬 Community Discussions</h2>
-              <button
-                className="btn-primary"
-                onClick={() => {
-                  const title = prompt("Enter discussion title:");
-                  if (title) {
-                    const content = prompt("Enter discussion content:");
-                    if (content) {
-                      setPosts([{
-                        id: Date.now(),
-                        title,
-                        content,
-                        author: user?.full_name || "You",
-                        avatar: (user?.full_name || "Y").charAt(0),
-                        timestamp: "Just now",
-                        replies: 0,
-                        likes: 0,
-                        tags: ["New"],
-                      }, ...posts]);
-                    }
-                  }
-                }}
-              >
+              <Link to="/community/post/new" className="btn-primary">
                 New Post
-              </button>
+              </Link>
             </div>
 
             <div className="posts-list">
@@ -212,29 +213,29 @@ export const Community = () => {
                       </div>
                     </div>
                     <div className="post-stats">
-                      <span className="replies">💬 {post.replies}</span>
+                      <span className="replies">💬 {post.replies || post.comments?.length || 0}</span>
                       <span className="likes">👍 {post.likes}</span>
                     </div>
                   </div>
 
                   <div className="post-content">
                     <h3>{post.title}</h3>
-                    <p>{post.content}</p>
+                    <p>{post.content.substring(0, 150)}...</p>
 
                     <div className="post-tags">
-                      {post.tags.map(tag => (
-                        <span key={tag} className="tag">{tag}</span>
+                      {post.tags?.map((tag, idx) => (
+                        <span key={idx} className="tag">{tag}</span>
                       ))}
                     </div>
                   </div>
 
                   <div className="post-actions">
                     <button className="btn-secondary" onClick={() => handleLikePost(post.id)}>
-                      Like ({post.likes})
+                      Like ({post.likes || 0})
                     </button>
-                    <button className="btn-secondary" onClick={() => alert("Reply feature coming soon!")}>
-                      Reply
-                    </button>
+                    <Link to={`/community/post/${post.id}`} className="btn-secondary" style={{ textDecoration: 'none' }}>
+                      Reply / View
+                    </Link>
                   </div>
                 </div>
               ))}
@@ -246,48 +247,40 @@ export const Community = () => {
           <div className="events-section">
             <div className="section-header">
               <h2>📅 Upcoming Events</h2>
-              <button
-                className="btn-primary"
-                onClick={() => {
-                  const title = prompt("Event Title:");
-                  if (title) setEvents([...events, {
-                    id: Date.now(),
-                    title,
-                    date: new Date().toISOString(),
-                    time: "12:00",
-                    attendees: 1,
-                    maxAttendees: 50,
-                    description: "New community event"
-                  }]);
-                }}
-              >
+              <Link to="/community/event/new" className="btn-primary">
                 Create Event
-              </button>
+              </Link>
             </div>
 
             <div className="events-list">
-              {events.map(event => (
-                <div key={event.id} className="event-card">
-                  <div className="event-date">
-                    <div className="date">{new Date(event.date).getDate() || 20}</div>
-                    <div className="month">{new Date(event.date).toLocaleString('default', { month: 'short' }) || "Dec"}</div>
-                  </div>
-
-                  <div className="event-details">
-                    <h3>{event.title}</h3>
-                    <p className="event-description">{event.description}</p>
-
-                    <div className="event-meta">
-                      <span>⏰ {event.time}</span>
-                      <span>👥 {event.attendees}/{event.maxAttendees} attending</span>
+              {events.map(event => {
+                const joined = isJoined('event', event.id);
+                return (
+                  <div key={event.id} className="event-card">
+                    <div className="event-date">
+                      <div className="date">{new Date(event.date).getDate() || 20}</div>
+                      <div className="month">{new Date(event.date).toLocaleString('default', { month: 'short' }) || "Dec"}</div>
                     </div>
 
-                    <button className="btn-primary" onClick={() => alert("You joined the event!")}>
-                      Join Event
-                    </button>
+                    <div className="event-details">
+                      <h3>{event.title}</h3>
+                      <p className="event-description">{event.description}</p>
+
+                      <div className="event-meta">
+                        <span>⏰ {event.time}</span>
+                        <span>👥 {event.attendees + (joined ? 1 : 0)}/{event.maxAttendees} attending</span>
+                      </div>
+
+                      <button
+                        className={`btn-${joined ? 'secondary' : 'primary'}`}
+                        onClick={() => handleJoinToggle('event', event.id)}
+                      >
+                        {joined ? 'Joined ✅' : 'Join Event'}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -296,37 +289,37 @@ export const Community = () => {
           <div className="groups-section">
             <div className="section-header">
               <h2>🎓 Study Groups</h2>
-              <button
-                className="btn-primary"
-                onClick={() => alert("Create Group feature coming soon!")}
-              >
+              <Link to="/community/group/new" className="btn-primary">
                 Create Group
-              </button>
+              </Link>
             </div>
 
             <div className="groups-list">
-              {studyGroups.map(group => (
-                <div key={group.id} className="group-card">
-                  <div className="group-header">
-                    <h3>{group.name}</h3>
-                    <span className="members">{group.members}/{group.maxMembers} members</span>
+              {studyGroups.map(group => {
+                const joined = isJoined('group', group.id);
+                return (
+                  <div key={group.id} className="group-card">
+                    <div className="group-header">
+                      <h3>{group.name}</h3>
+                      <span className="members">{group.members + (joined ? 1 : 0)}/{group.maxMembers} members</span>
+                    </div>
+
+                    <p className="group-description">{group.description}</p>
+
+                    <div className="group-meta">
+                      <span>📅 Next meeting: {group.nextMeeting}</span>
+                    </div>
+
+                    <button
+                      className={`btn-${joined ? 'secondary' : 'primary'}`}
+                      onClick={() => handleJoinToggle('group', group.id)}
+                      disabled={!joined && group.members >= group.maxMembers}
+                    >
+                      {joined ? 'Joined ✅' : (group.members >= group.maxMembers ? 'Group Full' : 'Join Group')}
+                    </button>
                   </div>
-
-                  <p className="group-description">{group.description}</p>
-
-                  <div className="group-meta">
-                    <span>📅 Next meeting: {group.nextMeeting}</span>
-                  </div>
-
-                  <button
-                    className="btn-primary"
-                    onClick={() => handleJoinGroup(group.id)}
-                    disabled={group.members >= group.maxMembers}
-                  >
-                    {group.members >= group.maxMembers ? 'Group Full' : 'Join Group'}
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

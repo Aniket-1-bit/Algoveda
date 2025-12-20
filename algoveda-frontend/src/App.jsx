@@ -30,7 +30,14 @@ import { CreateCourse } from './pages/mentor/CreateCourse';
 import { CreateChallenge } from './pages/mentor/CreateChallenge';
 import { CreateQuiz } from './pages/mentor/CreateQuiz';
 import { AwardBadge } from './pages/mentor/AwardBadge';
-
+import { AddModule } from './pages/mentor/AddModule';
+import { EditModule } from './pages/mentor/EditModule';
+import { MessageStudent } from './pages/mentor/MessageStudent';
+import { GradeSubmission } from './pages/mentor/GradeSubmission';
+import { CreatePost } from './pages/community/CreatePost';
+import { PostDetail } from './pages/community/PostDetail';
+import { CreateEvent } from './pages/community/CreateEvent';
+import { CreateGroup } from './pages/community/CreateGroup';
 function App() {
   const [theme, setTheme] = useState('light');
 
@@ -70,7 +77,26 @@ function App() {
             <Route path="/mentor" element={<MentorPortal />} />
             <Route path="/quiz-game" element={<QuizGame />} />
             <Route path="/memory-game" element={<MemoryGame />} />
+            <Route path="/mentor/course/:courseId/students" element={<CourseStudents />} />
+            <Route path="/mentor/course/:courseId/student/:studentId/message" element={<MessageStudent />} />
+
+            <Route path="/mentor/course/:courseId/grading" element={<GradingDashboard />} />
+            <Route path="/mentor/course/:courseId/submission/:submissionId/grade" element={<GradeSubmission />} />
+
+            <Route path="/mentor/course/:courseId/module/new" element={<AddModule />} />
+            <Route path="/mentor/course/:courseId/module/:moduleId/edit" element={<EditModule />} />
+
+            <Route path="/mentor/create-course" element={<CreateCourse />} />
+            <Route path="/mentor/create-challenge" element={<CreateChallenge />} />
+            <Route path="/mentor/create-quiz" element={<CreateQuiz />} />
+            <Route path="/mentor/award-badge" element={<AwardBadge />} />
+
             <Route path="/community" element={<Community />} />
+            <Route path="/community/post/new" element={<CreatePost />} />
+            <Route path="/community/post/:postId" element={<PostDetail />} />
+            <Route path="/community/event/new" element={<CreateEvent />} />
+            <Route path="/community/group/new" element={<CreateGroup />} />
+
             <Route path="/schedule" element={<PrivateRoute><Schedule /></PrivateRoute>} />
             <Route path="/history" element={<PrivateRoute><History /></PrivateRoute>} />
             <Route path="/enroll/:courseId" element={<PrivateRoute><Enrollment /></PrivateRoute>} />

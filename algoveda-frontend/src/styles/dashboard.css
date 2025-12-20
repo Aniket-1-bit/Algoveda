@@ -221,6 +221,28 @@
   flex-direction: column;
   gap: 1.5rem;
   flex: 1;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+/* Custom Scrollbar for Active Courses */
+.courses-progress::-webkit-scrollbar {
+  width: 6px;
+}
+
+.courses-progress::-webkit-scrollbar-track {
+  background: var(--light-bg);
+  border-radius: 4px;
+}
+
+.courses-progress::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.courses-progress::-webkit-scrollbar-thumb:hover {
+  background: var(--text-light);
 }
 
 .course-progress-item {
