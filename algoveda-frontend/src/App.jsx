@@ -5,6 +5,8 @@ import { ToastProvider } from './context/ToastContext';
 import { Navbar } from './components/Navbar';
 import { PrivateRoute } from './components/PrivateRoute';
 import { Home } from './pages/Home';
+import AdminRoute from './components/AdminRoute';
+import AdminPortal from './pages/AdminPortal';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { ForgotPassword } from './pages/ForgotPassword';
@@ -96,6 +98,12 @@ function App() {
             <Route path="/community/post/:postId" element={<PostDetail />} />
             <Route path="/community/event/new" element={<CreateEvent />} />
             <Route path="/community/group/new" element={<CreateGroup />} />
+
+            <Route path="/admin" element={
+              <AdminRoute>
+                <AdminPortal />
+              </AdminRoute>
+            } />
 
             <Route path="/schedule" element={<PrivateRoute><Schedule /></PrivateRoute>} />
             <Route path="/history" element={<PrivateRoute><History /></PrivateRoute>} />

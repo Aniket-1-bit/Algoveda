@@ -5,7 +5,7 @@ import { StudyTimer } from '../components/StudyTimer';
 import { UpcomingLessons } from '../components/UpcomingLessons';
 import { RecentActivity } from '../components/RecentActivity';
 import { LoadingSpinner } from '../components/LoadingSpinner';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { AIRecommendations } from '../components/AIRecommendations';
 import '../styles/dashboard.css';
 
@@ -51,13 +51,14 @@ export const Dashboard = () => {
   const [badges, setBadges] = useState([]);
 
   const isMentor = user?.user_type === 'mentor';
+  const isAdmin = user?.user_type === 'admin';
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         // If it's a student, we load student-specific mock data
-        if (!isMentor) {
+        if (!isMentor && !isAdmin) {
           setStats({
             totalXP: 1250,
             currentLevel: 5,
@@ -76,7 +77,7 @@ export const Dashboard = () => {
             };
           });
           setProgress(progressData);
-        } else {
+        } else if (isMentor) {
           // For mentor, fetch actual courses and stats separately for resilience
           try {
             const statsRes = await mentorAPI.getMentorStats();
@@ -109,7 +110,7 @@ export const Dashboard = () => {
     };
 
     fetchData();
-  }, [isMentor, user]);
+  }, [isMentor, isAdmin, user]);
 
   if (loading) {
     return <LoadingSpinner message="Loading your dashboard..." />;
@@ -135,8 +136,8 @@ export const Dashboard = () => {
       </div>
 
       <div className="dashboard-header">
-        <h1>Welcome {isMentor ? '' : 'back, '}{user?.full_name || user?.username}! 👋</h1>
-        <p>{isMentor ? 'Manage your courses and track student progress' : 'Your personalized learning dashboard'}</p>
+        <h1>Welcome {isMentor || isAdmin ? '' : 'back, '}{user?.full_name || user?.username}! 👋</h1>
+        <p>{isAdmin ? 'Your personal admin workspace and activity center' : isMentor ? 'Manage your courses and track student progress' : 'Your personalized learning dashboard'}</p>
       </div>
 
       <div className="dashboard-grid">
@@ -195,8 +196,146 @@ export const Dashboard = () => {
           </>
         )}
 
+        {/* ADMIN VIEW: Personal Admin Workspace */}
+        {isAdmin && (
+          <>
+            <div className="dashboard-card" style={{ gridColumn: 'span 2' }}>
+              <div className="card-header">
+                <h3>📅 Admin Schedule</h3>
+                <div className="card-icon">🗓️</div>
+              </div>
+              <div style={{ display: 'flex', gap: '1rem', flexDirection: 'column' }}>
+                <div className="course-progress-item" style={{ borderLeft: '4px solid #8b5cf6' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <b>Platform Maintenance Review</b>
+                      <p style={{ fontSize: '0.8rem', color: 'var(--text-light)', margin: '0.25rem 0' }}>
+                        Today, 3:00 PM
+                      </p>
+                    </div>
+                    <span className="cute-badge cute-badge-warning">Upcoming</span>
+                  </div>
+                </div>
+                <div className="course-progress-item" style={{ borderLeft: '4px solid #10b981' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <b>User Reports Review</b>
+                      <p style={{ fontSize: '0.8rem', color: 'var(--text-light)', margin: '0.25rem 0' }}>
+                        Tomorrow, 10:00 AM
+                      </p>
+                    </div>
+                    <span className="cute-badge">Scheduled</span>
+                  </div>
+                </div>
+                <div className="course-progress-item" style={{ borderLeft: '4px solid #ec4899' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <b>Monthly Analytics Meeting</b>
+                      <p style={{ fontSize: '0.8rem', color: 'var(--text-light)', margin: '0.25rem 0' }}>
+                        Friday, 2:00 PM
+                      </p>
+                    </div>
+                    <span className="cute-badge">Scheduled</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="dashboard-card">
+              <div className="card-header">
+                <h3>✅ Pending Tasks</h3>
+                <div className="card-icon">📋</div>
+              </div>
+              <ul style={{ listStyle: 'none', padding: 0 }}>
+                <li style={{ borderBottom: '1px solid var(--border-color)', padding: '0.75rem 0', fontSize: '0.9rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span><b>Review 3 pending role changes</b></span>
+                    <span className="cute-badge" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>High</span>
+                  </div>
+                </li>
+                <li style={{ borderBottom: '1px solid var(--border-color)', padding: '0.75rem 0', fontSize: '0.9rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span><b>Approve 2 new courses</b></span>
+                    <span className="cute-badge cute-badge-warning">Medium</span>
+                  </div>
+                </li>
+                <li style={{ borderBottom: '1px solid var(--border-color)', padding: '0.75rem 0', fontSize: '0.9rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span><b>Check system logs</b></span>
+                    <span className="cute-badge cute-badge-success">Low</span>
+                  </div>
+                </li>
+                <li style={{ padding: '0.75rem 0', fontSize: '0.9rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span><b>Update platform policies</b></span>
+                    <span className="cute-badge cute-badge-success">Low</span>
+                  </div>
+                </li>
+              </ul>
+              <Link to="/admin" className="btn-secondary" style={{ marginTop: '1rem', display: 'block', textAlign: 'center' }}>
+                Go to Admin Portal →
+              </Link>
+            </div>
+
+            <div className="dashboard-card" style={{ gridColumn: 'span 2' }}>
+              <div className="card-header">
+                <h3>📊 Admin Metrics</h3>
+                <div className="card-icon">📈</div>
+              </div>
+              <div className="stats-container">
+                <div className="stat-item">
+                  <div className="stat-icon">👥</div>
+                  <div className="stat-info">
+                    <div className="stat-value">142</div>
+                    <div className="stat-label">Total Users</div>
+                  </div>
+                </div>
+                <div className="stat-item">
+                  <div className="stat-icon">📚</div>
+                  <div className="stat-info">
+                    <div className="stat-value">28</div>
+                    <div className="stat-label">Active Courses</div>
+                  </div>
+                </div>
+                <div className="stat-item">
+                  <div className="stat-icon">💚</div>
+                  <div className="stat-info">
+                    <div className="stat-value">99.9%</div>
+                    <div className="stat-label">System Uptime</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="dashboard-card">
+              <div className="card-header">
+                <h3>🕐 Recent Admin Activity</h3>
+                <div className="card-icon">📝</div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div style={{ padding: '0.75rem', backgroundColor: 'var(--light-bg)', borderRadius: 'var(--radius-md)', borderLeft: '3px solid #10b981' }}>
+                  <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}>Promoted user to Mentor</p>
+                  <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', color: 'var(--text-light)' }}>2 hours ago</p>
+                </div>
+                <div style={{ padding: '0.75rem', backgroundColor: 'var(--light-bg)', borderRadius: 'var(--radius-md)', borderLeft: '3px solid #8b5cf6' }}>
+                  <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}>Approved new course: Advanced React</p>
+                  <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', color: 'var(--text-light)' }}>5 hours ago</p>
+                </div>
+                <div style={{ padding: '0.75rem', backgroundColor: 'var(--light-bg)', borderRadius: 'var(--radius-md)', borderLeft: '3px solid #f59e0b' }}>
+                  <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}>Updated platform settings</p>
+                  <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', color: 'var(--text-light)' }}>Yesterday</p>
+                </div>
+                <div style={{ padding: '0.75rem', backgroundColor: 'var(--light-bg)', borderRadius: 'var(--radius-md)', borderLeft: '3px solid #ec4899' }}>
+                  <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}>Resolved user support ticket</p>
+                  <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', color: 'var(--text-light)' }}>2 days ago</p>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
         {/* STUDENT VIEW: Gamification, Progress, Badges, Quick Actions */}
-        {!isMentor && (
+        {!isMentor && !isAdmin && (
           <>
             <div className="dashboard-card gamification">
               <div className="card-header">
@@ -348,12 +487,16 @@ export const Dashboard = () => {
           </>
         )}
 
-        {/* SHARED BUT DIFFERENTIATED SECTIONS */}
-        <UpcomingLessons lessons={isMentor ? mentorLessons : undefined} />
-        <RecentActivity activities={isMentor ? mentorActivity : undefined} />
+        {/* SHARED BUT DIFFERENTIATED SECTIONS - Only for Students and Mentors */}
+        {!isAdmin && (
+          <>
+            <UpcomingLessons lessons={isMentor ? mentorLessons : undefined} />
+            <RecentActivity activities={isMentor ? mentorActivity : undefined} />
+          </>
+        )}
       </div>
 
-      {!isMentor && (
+      {!isMentor && !isAdmin && (
         <>
           {/* AI Recommendations Section */}
           <div className="ai-recommendations-section">

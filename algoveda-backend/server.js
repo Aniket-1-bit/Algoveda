@@ -27,6 +27,7 @@ const certificateRoutes = require('./routes/certificateRoutes');
 const searchRoutes = require('./routes/searchRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 // Use Render's provided PORT or default to 5001
@@ -48,7 +49,7 @@ const initializeApp = async () => {
     console.log('🔍 Testing database connection...');
     await pool.query('SELECT NOW()');
     console.log('✅ Database connection established');
-    
+
     // Only initialize database schema in development
     if (process.env.NODE_ENV !== 'production') {
       console.log('🔧 Initializing database schema...');
@@ -61,7 +62,7 @@ const initializeApp = async () => {
     console.error('1. PostgreSQL is installed and running');
     console.error('2. Database credentials in .env file are correct');
     console.error('3. Database "algoveda" exists (run: npm run init-db)\n');
-    
+
     // In production, we don't want to exit if database fails initially
     if (process.env.NODE_ENV !== 'production') {
       process.exit(1);
@@ -95,11 +96,12 @@ app.use('/api/certificates', certificateRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'Server is running', 
+  res.json({
+    status: 'Server is running',
     timestamp: new Date(),
     environment: process.env.NODE_ENV || 'development'
   });
@@ -107,7 +109,7 @@ app.get('/api/health', (req, res) => {
 
 // Root endpoint for basic verification
 app.get('/', (req, res) => {
-  res.json({ 
+  res.json({
     message: 'ALGOVEDA Backend Server is running!',
     timestamp: new Date(),
     environment: process.env.NODE_ENV || 'development'

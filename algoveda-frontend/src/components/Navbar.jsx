@@ -27,6 +27,7 @@ export const Navbar = () => {
               <Link to="/leaderboard">Leaderboard</Link>
               <Link to="/daily-challenge">Daily Challenge</Link>
               {user?.user_type === 'mentor' && <Link to="/mentor">Mentor Portal</Link>}
+              {user?.user_type === 'admin' && <Link to="/admin">Admin Portal</Link>}
               <NotificationBell />
               <span className="user-info">Hi, {user?.username}!</span>
               <button className="btn-primary" onClick={handleLogout}>
