@@ -7,6 +7,7 @@ import { PrivateRoute } from './components/PrivateRoute';
 import { Home } from './pages/Home';
 import AdminRoute from './components/AdminRoute';
 import AdminPortal from './pages/AdminPortal';
+import AdminSettings from './pages/AdminSettings';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { ForgotPassword } from './pages/ForgotPassword';
@@ -102,6 +103,11 @@ function App() {
             <Route path="/admin" element={
               <AdminRoute>
                 <AdminPortal />
+              </AdminRoute>
+            } />
+            <Route path="/admin/settings" element={
+              <AdminRoute>
+                <AdminSettings />
               </AdminRoute>
             } />
 

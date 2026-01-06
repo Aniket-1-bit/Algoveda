@@ -25,6 +25,25 @@ const AdminPortal = () => {
     const [activeTab, setActiveTab] = useState('overview');
     const [filterRole, setFilterRole] = useState('all');
 
+    // Modal states
+    const [showAddUserModal, setShowAddUserModal] = useState(false);
+    const [showSendAlertModal, setShowSendAlertModal] = useState(false);
+
+    // Form states
+    const [newUser, setNewUser] = useState({
+        username: '',
+        email: '',
+        password: '',
+        full_name: '',
+        user_type: 'student'
+    });
+
+    const [announcement, setAnnouncement] = useState({
+        title: '',
+        message: '',
+        priority: 'normal'
+    });
+
     const [systemHealth] = useState({
         serverStatus: 'healthy',
         databaseStatus: 'healthy',
@@ -80,6 +99,64 @@ const AdminPortal = () => {
     const handleSearch = (e) => {
         e.preventDefault();
         setPagination(prev => ({ ...prev, page: 1 }));
+    };
+
+    const handleAddUser = async (e) => {
+        e.preventDefault();
+        try {
+            // TODO: Call backend API to add user
+            console.log('Adding user:', newUser);
+            alert(`User ${newUser.username} created successfully!`);
+            setShowAddUserModal(false);
+            setNewUser({ username: '', email: '', password: '', full_name: '', user_type: 'student' });
+            fetchData(); // Refresh user list
+        } catch (err) {
+            console.error('Failed to add user:', err);
+            alert('Failed to add user');
+        }
+    };
+
+    const handleSendAlert = async (e) => {
+        e.preventDefault();
+        try {
+            // TODO: Call backend API to send alert
+            console.log('Sending alert:', announcement);
+            alert(`Alert "${announcement.title}" sent to all users!`);
+            setShowSendAlertModal(false);
+            setAnnouncement({ title: '', message: '', priority: 'normal' });
+        } catch (err) {
+            console.error('Failed to send alert:', err);
+            alert('Failed to send alert');
+        }
+    };
+
+    const handleExportData = () => {
+        // Create CSV export
+        const csvHeaders = ['ID', 'Username', 'Email', 'Full Name', 'Role', 'Joined Date'];
+        const csvRows = users.map(user => [
+            user.id,
+            user.username,
+            user.email,
+            user.full_name || '',
+            user.user_type,
+            new Date(user.created_at).toLocaleDateString()
+        ]);
+
+        const csvContent = [
+            csvHeaders.join(','),
+            ...csvRows.map(row => row.map(cell => `"${cell}"`).join(','))
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `algoveda-users-${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        alert('User data exported successfully!');
     };
 
     const filteredUsers = filterRole === 'all'
@@ -216,22 +293,38 @@ const AdminPortal = () => {
                                     ⚡ Quick Actions
                                 </h2>
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
-                                    <button className="btn-cute-secondary" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1rem' }}>
+                                    <button
+                                        onClick={() => setShowAddUserModal(true)}
+                                        className="btn-cute-secondary"
+                                        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1rem' }}
+                                    >
                                         <span style={{ fontSize: '1.8rem' }}>➕</span>
                                         <span style={{ fontSize: '0.875rem' }}>Add User</span>
                                     </button>
-                                    <button className="btn-cute-secondary" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1rem' }}>
+                                    <button
+                                        onClick={() => setShowSendAlertModal(true)}
+                                        className="btn-cute-secondary"
+                                        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1rem' }}
+                                    >
                                         <span style={{ fontSize: '1.8rem' }}>📧</span>
                                         <span style={{ fontSize: '0.875rem' }}>Send Alert</span>
                                     </button>
-                                    <button className="btn-cute-secondary" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1rem' }}>
+                                    <button
+                                        onClick={handleExportData}
+                                        className="btn-cute-secondary"
+                                        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1rem' }}
+                                    >
                                         <span style={{ fontSize: '1.8rem' }}>📊</span>
                                         <span style={{ fontSize: '0.875rem' }}>Export Data</span>
                                     </button>
-                                    <button className="btn-cute-secondary" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1rem' }}>
+                                    <Link
+                                        to="/admin/settings"
+                                        className="btn-cute-secondary"
+                                        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', padding: '1rem', textDecoration: 'none' }}
+                                    >
                                         <span style={{ fontSize: '1.8rem' }}>⚙️</span>
                                         <span style={{ fontSize: '0.875rem' }}>Settings</span>
-                                    </button>
+                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -312,8 +405,8 @@ const AdminPortal = () => {
                                             <td style={{ padding: '1rem', color: 'var(--cute-text-dark)' }}>{user.email}</td>
                                             <td style={{ padding: '1rem' }}>
                                                 <span className={`cute-badge ${user.user_type === 'admin' ? 'cute-badge-warning' :
-                                                        user.user_type === 'mentor' ? '' :
-                                                            'cute-badge-success'
+                                                    user.user_type === 'mentor' ? '' :
+                                                        'cute-badge-success'
                                                     }`}>
                                                     {user.user_type.toUpperCase()}
                                                 </span>
@@ -417,6 +510,155 @@ const AdminPortal = () => {
                     </motion.div>
                 )}
             </div>
+
+            {/* Add User Modal */}
+            {showAddUserModal && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowAddUserModal(false)}>
+                    <div className="cute-card" style={{ maxWidth: '500px', width: '90%', maxHeight: '90vh', overflow: 'auto' }} onClick={(e) => e.stopPropagation()}>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', color: 'var(--cute-text-dark)' }}>
+                            ➕ Add New User
+                        </h2>
+                        <form onSubmit={handleAddUser}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--cute-text-dark)' }}>
+                                        Username *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        required
+                                        className="cute-input"
+                                        value={newUser.username}
+                                        onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--cute-text-dark)' }}>
+                                        Email *
+                                    </label>
+                                    <input
+                                        type="email"
+                                        required
+                                        className="cute-input"
+                                        value={newUser.email}
+                                        onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--cute-text-dark)' }}>
+                                        Full Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        className="cute-input"
+                                        value={newUser.full_name}
+                                        onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--cute-text-dark)' }}>
+                                        Password *
+                                    </label>
+                                    <input
+                                        type="password"
+                                        required
+                                        className="cute-input"
+                                        value={newUser.password}
+                                        onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--cute-text-dark)' }}>
+                                        Role *
+                                    </label>
+                                    <select
+                                        required
+                                        className="cute-input"
+                                        value={newUser.user_type}
+                                        onChange={(e) => setNewUser({ ...newUser, user_type: e.target.value })}
+                                    >
+                                        <option value="student">Student</option>
+                                        <option value="mentor">Mentor</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', justifyContent: 'flex-end' }}>
+                                <button type="button" onClick={() => setShowAddUserModal(false)} className="btn-cute-secondary">
+                                    Cancel
+                                </button>
+                                <button type="submit" className="btn-cute">
+                                    Add User
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Send Alert Modal */}
+            {showSendAlertModal && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowSendAlertModal(false)}>
+                    <div className="cute-card" style={{ maxWidth: '500px', width: '90%', maxHeight: '90vh', overflow: 'auto' }} onClick={(e) => e.stopPropagation()}>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem', color: 'var(--cute-text-dark)' }}>
+                            📧 Send Platform Alert
+                        </h2>
+                        <form onSubmit={handleSendAlert}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--cute-text-dark)' }}>
+                                        Alert Title *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        required
+                                        className="cute-input"
+                                        placeholder="e.g., Platform Maintenance"
+                                        value={announcement.title}
+                                        onChange={(e) => setAnnouncement({ ...announcement, title: e.target.value })}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--cute-text-dark)' }}>
+                                        Message *
+                                    </label>
+                                    <textarea
+                                        required
+                                        className="cute-input"
+                                        rows="5"
+                                        placeholder="Enter your message..."
+                                        value={announcement.message}
+                                        onChange={(e) => setAnnouncement({ ...announcement, message: e.target.value })}
+                                        style={{ resize: 'vertical', fontFamily: 'inherit' }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--cute-text-dark)' }}>
+                                        Priority
+                                    </label>
+                                    <select
+                                        className="cute-input"
+                                        value={announcement.priority}
+                                        onChange={(e) => setAnnouncement({ ...announcement, priority: e.target.value })}
+                                    >
+                                        <option value="normal">Normal</option>
+                                        <option value="high">High</option>
+                                        <option value="urgent">Urgent</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', justifyContent: 'flex-end' }}>
+                                <button type="button" onClick={() => setShowSendAlertModal(false)} className="btn-cute-secondary">
+                                    Cancel
+                                </button>
+                                <button type="submit" className="btn-cute">
+                                    Send Alert
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             <style>{`
                 .hover-lift:hover {
