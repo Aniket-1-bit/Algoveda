@@ -4,6 +4,7 @@ const {
   submitChallengeAttempt,
   createChallenge,
   getChallengeSolution,
+  getAllChallenges,
 } = require('../controllers/challengeController');
 const { authenticateToken, authorizeRole } = require('../middleware/auth');
 
@@ -19,5 +20,6 @@ router.get('/:challengeId/solution', getChallengeSolution);
 
 // Mentor only
 router.post('/', authorizeRole(['mentor']), createChallenge);
+router.get('/', authorizeRole(['mentor']), getAllChallenges);
 
 module.exports = router;

@@ -57,26 +57,65 @@ export const Dashboard = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // If it's a student, we load student-specific mock data
+        // If it's a student, fetch real data from the API
         if (!isMentor && !isAdmin) {
-          setStats({
-            totalXP: 1250,
-            currentLevel: 5,
-            dailyStreak: 7,
-          });
-
-          setBadges(mockBadges);
-          setCourses(mockCourses);
-
-          const progressData = {};
-          mockCourses.forEach(course => {
-            progressData[course.id] = {
-              completion_percentage: course.completion_percentage,
-              completed_lessons: course.completed_lessons,
-              total_lessons: course.total_lessons
-            };
-          });
-          setProgress(progressData);
+          try {
+            // Fetch student stats
+            const statsRes = await gamificationAPI.getUserStats();
+            setStats({
+              totalXP: statsRes.data.total_xp || 0,
+              currentLevel: statsRes.data.current_level || 1,
+              dailyStreak: statsRes.data.daily_streak || 0,
+            });
+            
+            // Fetch student badges
+            const badgesRes = await gamificationAPI.getUserBadges();
+            setBadges(badgesRes.data || []);
+            
+            // Fetch enrolled courses
+            const coursesRes = await courseAPI.getEnrolledCourses();
+            const enrolledCourses = coursesRes.data || [];
+            setCourses(enrolledCourses);
+            
+            // Fetch progress for each course
+            const progressData = {};
+            for (const course of enrolledCourses) {
+              try {
+                const progressRes = await progressAPI.getCourseProgress(course.id);
+                progressData[course.id] = progressRes.data;
+              } catch (progressErr) {
+                console.error(`Failed to fetch progress for course ${course.id}:`, progressErr);
+                // Fallback progress data
+                progressData[course.id] = {
+                  completion_percentage: 0,
+                  completed_lessons: 0,
+                  total_lessons: 10 // default value
+                };
+              }
+            }
+            setProgress(progressData);
+          } catch (studentErr) {
+            console.error('Failed to fetch student data:', studentErr);
+            // Fallback to mock data if API fails
+            setStats({
+              totalXP: 1250,
+              currentLevel: 5,
+              dailyStreak: 7,
+            });
+            
+            setBadges(mockBadges);
+            setCourses(mockCourses);
+            
+            const progressData = {};
+            mockCourses.forEach(course => {
+              progressData[course.id] = {
+                completion_percentage: course.completion_percentage,
+                completed_lessons: course.completed_lessons,
+                total_lessons: course.total_lessons
+              };
+            });
+            setProgress(progressData);
+          }
         } else if (isMentor) {
           // For mentor, fetch actual courses and stats separately for resilience
           try {
@@ -467,20 +506,28 @@ export const Dashboard = () => {
               </div>
               <div className="games-grid">
                 <Link to="/quiz-game" className="game-card">
-                  <div className="game-icon">🧠</div>
-                  <div className="game-title">Quiz Challenge</div>
+                  <div className="game-content">
+                    <div className="game-icon">🧠</div>
+                    <div className="game-title">Quiz Challenge</div>
+                  </div>
                 </Link>
                 <Link to="/memory-game" className="game-card">
-                  <div className="game-icon">🃏</div>
-                  <div className="game-title">Memory Game</div>
+                  <div className="game-content">
+                    <div className="game-icon">🃏</div>
+                    <div className="game-title">Memory Game</div>
+                  </div>
                 </Link>
                 <Link to="/daily-challenge" className="game-card">
-                  <div className="game-icon">⚡</div>
-                  <div className="game-title">Daily Challenge</div>
+                  <div className="game-content">
+                    <div className="game-icon">⚡</div>
+                    <div className="game-title">Daily Challenge</div>
+                  </div>
                 </Link>
                 <Link to="/community" className="game-card">
-                  <div className="game-icon">👥</div>
-                  <div className="game-title">Community</div>
+                  <div className="game-content">
+                    <div className="game-icon">👥</div>
+                    <div className="game-title">Community</div>
+                  </div>
                 </Link>
               </div>
             </div>

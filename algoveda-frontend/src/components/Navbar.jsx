@@ -29,7 +29,7 @@ export const Navbar = () => {
               {user?.user_type === 'mentor' && <Link to="/mentor">Mentor Portal</Link>}
               {user?.user_type === 'admin' && <Link to="/admin">Admin Portal</Link>}
               <NotificationBell />
-              <span className="user-info">Hi, {user?.username}!</span>
+              <span className="user-info">Hi, {user?.user_type === 'admin' ? 'admin' : user?.user_type === 'mentor' ? 'mentor' : user?.username}!</span>
               <button className="btn-primary" onClick={handleLogout}>
                 Logout
               </button>

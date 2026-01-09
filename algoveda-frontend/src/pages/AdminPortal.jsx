@@ -104,8 +104,7 @@ const AdminPortal = () => {
     const handleAddUser = async (e) => {
         e.preventDefault();
         try {
-            // TODO: Call backend API to add user
-            console.log('Adding user:', newUser);
+            await adminService.addUser(newUser);
             alert(`User ${newUser.username} created successfully!`);
             setShowAddUserModal(false);
             setNewUser({ username: '', email: '', password: '', full_name: '', user_type: 'student' });
@@ -119,8 +118,7 @@ const AdminPortal = () => {
     const handleSendAlert = async (e) => {
         e.preventDefault();
         try {
-            // TODO: Call backend API to send alert
-            console.log('Sending alert:', announcement);
+            await adminService.sendAlert(announcement);
             alert(`Alert "${announcement.title}" sent to all users!`);
             setShowSendAlertModal(false);
             setAnnouncement({ title: '', message: '', priority: 'normal' });

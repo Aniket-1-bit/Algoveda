@@ -197,10 +197,26 @@ const getChallengeSolution = async (req, res, next) => {
   }
 };
 
+const getAllChallenges = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    
+    const result = await pool.query(
+      'SELECT dc.*, u.username as created_by_name FROM daily_challenges dc JOIN users u ON dc.created_by = u.id WHERE dc.created_by = $1 ORDER BY dc.created_date DESC',
+      [userId]
+    );
+    
+    res.json(result.rows);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   initializeChallengesTable,
   getTodayChallenge,
   submitChallengeAttempt,
   createChallenge,
   getChallengeSolution,
+  getAllChallenges,
 };

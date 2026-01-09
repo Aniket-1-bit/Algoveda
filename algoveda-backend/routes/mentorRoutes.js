@@ -2,13 +2,16 @@ const express = require('express');
 const {
   getMentorStats,
   getMentorCourses,
+  getMentorChallenges,
   getCourseStudents,
   awardCustomBadge,
   awardBonusXP,
   createClassQuiz,
   getStudentPerformance,
+  getMentorQuizzes,
 } = require('../controllers/mentorController');
 const { authenticateToken, authorizeRole } = require('../middleware/auth');
+const { deleteCourse } = require('../controllers/courseController');
 
 const router = express.Router();
 
@@ -27,5 +30,10 @@ router.post('/xp/award', awardBonusXP);
 
 // Content management
 router.post('/quizzes', createClassQuiz);
+router.get('/quizzes', getMentorQuizzes);
+router.get('/challenges', getMentorChallenges);
+
+// Course management
+router.delete('/courses/:id', deleteCourse);
 
 module.exports = router;

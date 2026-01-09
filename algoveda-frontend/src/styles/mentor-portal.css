@@ -192,6 +192,129 @@
   margin-bottom: 1.5rem;
 }
 
+.challenges-table {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.challenges-table .table-header {
+  grid-template-columns: 2fr 2fr 1fr 1fr 1fr;
+}
+
+.challenges-table .table-row {
+  grid-template-columns: 2fr 2fr 1fr 1fr 1fr;
+}
+
+.challenge-title {
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.challenge-desc {
+  color: var(--text-light);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.challenge-difficulty .badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.challenge-difficulty .badge.easy {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.challenge-difficulty .badge.medium {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.challenge-difficulty .badge.hard {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.challenge-xp {
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+.challenge-date {
+  color: var(--text-light);
+}
+
+.no-challenges {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 1rem;
+  border: 2px dashed var(--border-color);
+}
+
+.no-challenges p {
+  color: var(--text-light);
+  margin-bottom: 1.5rem;
+}
+
+.quizzes-table {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.quizzes-table .table-header {
+  grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr;
+}
+
+.quizzes-table .table-row {
+  grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr;
+}
+
+.quiz-title {
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.quiz-course {
+  color: var(--text-light);
+}
+
+.quiz-lesson {
+  color: var(--text-light);
+}
+
+.quiz-questions {
+  color: var(--primary-color);
+  font-weight: bold;
+  text-align: center;
+}
+
+.quiz-date {
+  color: var(--text-light);
+}
+
+.no-quizzes {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 1rem;
+  border: 2px dashed var(--border-color);
+}
+
+.no-quizzes p {
+  color: var(--text-light);
+  margin-bottom: 1.5rem;
+}
+
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));

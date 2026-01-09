@@ -246,12 +246,87 @@ const getStudentPerformance = async (req, res, next) => {
   }
 };
 
+// Get all quizzes created by a mentor
+const getMentorQuizzes = async (req, res, next) => {
+  try {
+    const mentorId = req.user.id;
+
+    // Get all courses taught by this mentor
+    const coursesResult = await pool.query(
+      'SELECT id FROM courses WHERE instructor_id = $1',
+      [mentorId]
+    );
+
+    const courseIds = coursesResult.rows.map(course => course.id);
+
+    if (courseIds.length === 0) {
+      return res.json([]);
+    }
+
+    // Get all lessons from these courses
+    const lessonsResult = await pool.query(
+      'SELECT id FROM lessons WHERE course_id = ANY($1)',
+      [courseIds]
+    );
+
+    const lessonIds = lessonsResult.rows.map(lesson => lesson.id);
+
+    if (lessonIds.length === 0) {
+      return res.json([]);
+    }
+
+    // Get all quizzes for these lessons
+    const quizzesResult = await pool.query(
+      `SELECT q.*, l.title as lesson_title, l.course_id, c.title as course_title
+       FROM quizzes q
+       JOIN lessons l ON q.lesson_id = l.id
+       JOIN courses c ON l.course_id = c.id
+       WHERE q.lesson_id = ANY($1)
+       ORDER BY q.created_at DESC`,
+      [lessonIds]
+    );
+
+    // Parse questions if they are stored as JSON string
+    const quizzes = quizzesResult.rows.map(quiz => {
+      if (typeof quiz.questions === 'string') {
+        try {
+          quiz.questions = JSON.parse(quiz.questions);
+        } catch (e) {
+          console.error('Error parsing quiz questions:', e);
+        }
+      }
+      return quiz;
+    });
+
+    res.json(quizzes);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getMentorChallenges = async (req, res, next) => {
+  try {
+    const mentorId = req.user.id;
+    
+    const result = await pool.query(
+      'SELECT dc.*, u.username as created_by_name FROM daily_challenges dc JOIN users u ON dc.created_by = u.id WHERE dc.created_by = $1 ORDER BY dc.created_date DESC',
+      [mentorId]
+    );
+    
+    res.json(result.rows);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getMentorStats,
   getMentorCourses,
+  getMentorChallenges,
   getCourseStudents,
   awardCustomBadge,
   awardBonusXP,
   createClassQuiz,
   getStudentPerformance,
+  getMentorQuizzes,
 };

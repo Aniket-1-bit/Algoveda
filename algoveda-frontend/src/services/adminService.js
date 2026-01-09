@@ -14,6 +14,16 @@ const adminService = {
     getStats: async () => {
         const response = await api.get('/admin/stats');
         return response.data;
+    },
+
+    addUser: async (userData) => {
+        const response = await api.post('/admin/users', userData);
+        return response.data;
+    },
+
+    sendAlert: async (alertData) => {
+        const response = await api.post('/admin/alerts', alertData);
+        return response.data;
     }
 };
 

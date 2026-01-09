@@ -90,8 +90,102 @@ const getStats = async (req, res, next) => {
     }
 };
 
+const bcrypt = require('bcryptjs');
+
+const addUser = async (req, res, next) => {
+    try {
+        const { username, email, password, full_name, user_type } = req.body;
+
+        // Validate required fields
+        if (!username || !email || !password) {
+            return res.status(400).json({ message: 'Username, email, and password are required' });
+        }
+
+        // Validate user type
+        if (!['student', 'mentor', 'admin'].includes(user_type)) {
+            return res.status(400).json({ message: 'Invalid user type. Must be student, mentor, or admin' });
+        }
+
+        // Check if user already exists
+        const existingUser = await pool.query(
+            'SELECT id FROM users WHERE username = $1 OR email = $2',
+            [username, email]
+        );
+
+        if (existingUser.rows.length > 0) {
+            return res.status(409).json({ message: 'User with this username or email already exists' });
+        }
+
+        // Hash the password
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        // Insert the new user
+        const result = await pool.query(
+            'INSERT INTO users (username, email, password_hash, full_name, user_type) VALUES ($1, $2, $3, $4, $5) RETURNING id, username, email, full_name, user_type, created_at',
+            [username, email, hashedPassword, full_name || null, user_type]
+        );
+
+        // Initialize gamification record for the new user
+        if (user_type !== 'admin') {
+            await pool.query(
+                'INSERT INTO user_gamification (user_id, total_xp, current_level) VALUES ($1, $2, $3)',
+                [result.rows[0].id, 0, 1]
+            );
+        }
+
+        res.status(201).json({
+            message: 'User created successfully',
+            user: result.rows[0]
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const sendAlert = async (req, res, next) => {
+    try {
+        const { title, message, priority } = req.body;
+        const adminId = req.user.id; // Assuming authenticateToken middleware adds user info to req
+
+        // Validate required fields
+        if (!title || !message) {
+            return res.status(400).json({ message: 'Title and message are required' });
+        }
+
+        // Validate priority
+        const validPriorities = ['low', 'normal', 'high', 'urgent'];
+        if (!validPriorities.includes(priority)) {
+            return res.status(400).json({ message: 'Invalid priority. Must be low, normal, high, or urgent' });
+        }
+
+        // Get all user IDs to send notifications to
+        const usersResult = await pool.query('SELECT id FROM users');
+        const userIds = usersResult.rows.map(user => user.id);
+
+        // Insert notification for each user
+        const notificationPromises = userIds.map(userId => {
+            return pool.query(
+                'INSERT INTO notifications (user_id, type, title, message, read) VALUES ($1, $2, $3, $4, $5)',
+                [userId, `alert_${priority}`, title, message, false]
+            );
+        });
+
+        await Promise.all(notificationPromises);
+
+        res.status(201).json({
+            message: `${userIds.length} alerts sent successfully`,
+            count: userIds.length
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getAllUsers,
     updateUserRole,
-    getStats
+    getStats,
+    addUser,
+    sendAlert
 };

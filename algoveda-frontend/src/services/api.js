@@ -28,6 +28,7 @@ export const courseAPI = {
   getAllCourses: () => api.get('/courses'),
   getCourseById: (id) => api.get(`/courses/${id}`),
   createCourse: (courseData) => api.post('/courses', courseData),
+  deleteCourse: (courseId) => api.delete(`/mentor/courses/${courseId}`),
   getLessonById: (id) => api.get(`/lessons/${id}`),
   getLessonsByCourse: (courseId) => api.get(`/lessons/course/${courseId}`),
 };
@@ -84,6 +85,7 @@ export const challengeAPI = {
   getTodayChallenge: () => api.get('/challenges/today'),
   submitChallenge: (challengeId, code) => api.post('/challenges/submit', { challengeId, code }),
   getChallengeSolution: (challengeId) => api.get(`/challenges/${challengeId}/solution`),
+  getAllChallenges: () => api.get('/challenges'),
   createChallenge: (challengeData) => api.post('/challenges', challengeData),
 };
 
@@ -91,11 +93,14 @@ export const challengeAPI = {
 export const mentorAPI = {
   getMentorStats: () => api.get('/mentor/stats'),
   getMentorCourses: () => api.get('/mentor/courses'),
+  getMentorChallenges: () => api.get('/mentor/challenges'),
   getCourseStudents: (courseId) => api.get(`/mentor/courses/${courseId}/students`),
   getStudentPerformance: (courseId, studentId) => api.get(`/mentor/courses/${courseId}/students/${studentId}/performance`),
   awardBadge: (studentId, badgeName, badgeDescription) => api.post('/mentor/badges/award', { studentId, badgeName, badgeDescription }),
   awardBonusXP: (studentId, xpAmount, reason) => api.post('/mentor/xp/award', { studentId, xpAmount, reason }),
   createQuiz: (lessonId, title, questions) => api.post('/mentor/quizzes', { lessonId, title, questions }),
+  getMentorQuizzes: () => api.get('/mentor/quizzes'),
+  deleteCourse: (courseId) => api.delete(`/mentor/courses/${courseId}`),
 };
 
 // Comment endpoints

@@ -71,4 +71,50 @@ const createCourse = async (req, res, next) => {
   }
 };
 
-module.exports = { getCourses, getCourseById, createCourse };
+const deleteCourse = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const instructor_id = req.user.id;
+    
+    // Verify course exists and user is instructor
+    const courseCheck = await pool.query('SELECT * FROM courses WHERE id = $1 AND instructor_id = $2', [id, instructor_id]);
+    
+    if (courseCheck.rows.length === 0) {
+      return res.status(404).json({ message: 'Course not found or unauthorized' });
+    }
+    
+    // Delete associated lessons first (due to foreign key constraints)
+    await pool.query('DELETE FROM lessons WHERE course_id = $1', [id]);
+    
+    // Delete associated quizzes (due to foreign key constraints)
+    await pool.query(`
+      DELETE FROM quizzes 
+      WHERE lesson_id IN (
+        SELECT id FROM lessons WHERE course_id = $1
+      )
+    `, [id]);
+    
+    // Delete associated course enrollments
+    await pool.query('DELETE FROM course_enrollments WHERE course_id = $1', [id]);
+    
+    // Delete associated user progress
+    await pool.query(`
+      DELETE FROM user_progress 
+      WHERE lesson_id IN (
+        SELECT id FROM lessons WHERE course_id = $1
+      )
+    `, [id]);
+    
+    // Delete the course
+    await pool.query('DELETE FROM courses WHERE id = $1', [id]);
+    
+    // Invalidate cache
+    cache.delete('courses:all');
+    
+    res.json({ message: 'Course and all associated data deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { getCourses, getCourseById, createCourse, deleteCourse };

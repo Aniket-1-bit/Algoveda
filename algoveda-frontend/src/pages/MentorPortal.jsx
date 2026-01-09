@@ -8,6 +8,8 @@ export const MentorPortal = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState(null);
   const [courses, setCourses] = useState([]);
+  const [challenges, setChallenges] = useState([]);
+  const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -53,10 +55,40 @@ export const MentorPortal = () => {
       } catch (e) {
         console.error('Failed to fetch courses:', e);
       }
+      
+      try {
+        const challengesRes = await mentorAPI.getMentorChallenges();
+        setChallenges(challengesRes.data || []);
+      } catch (e) {
+        console.error('Failed to fetch challenges:', e);
+      }
+      
+      try {
+        const quizzesRes = await mentorAPI.getMentorQuizzes();
+        setQuizzes(quizzesRes.data || []);
+      } catch (e) {
+        console.error('Failed to fetch quizzes:', e);
+      }
     } catch (error) {
       console.error('Failed to fetch mentor data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+  
+  const handleDeleteCourse = async (courseId, courseTitle) => {
+    const confirmed = window.confirm(`Are you sure you want to delete the course "${courseTitle}"? This will also delete all associated lessons, quizzes, and student progress.`);
+    
+    if (confirmed) {
+      try {
+        await mentorAPI.deleteCourse(courseId);
+        alert(`Course "${courseTitle}" has been deleted successfully.`);
+        // Refresh the course list
+        fetchMentorData();
+      } catch (error) {
+        console.error('Failed to delete course:', error);
+        alert('Failed to delete course. Please try again.');
+      }
     }
   };
 
@@ -159,6 +191,13 @@ export const MentorPortal = () => {
                 <div className="actions">
                   <Link to={`/mentor/course/${course.id}/students`} className="btn-small">View Students</Link>
                   <Link to={`/mentor/course/${course.id}/edit`} className="btn-small">Edit</Link>
+                  <button 
+                    className="btn-small" 
+                    style={{ backgroundColor: '#dc3545', color: 'white' }} 
+                    onClick={() => handleDeleteCourse(course.id, course.title)}
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
             ))}
@@ -167,6 +206,70 @@ export const MentorPortal = () => {
           <div className="no-courses">
             <p>No courses created yet. Create your first course to get started!</p>
             <button className="btn-primary">Create Course</button>
+          </div>
+        )}
+      </div>
+      
+      <div className="mentor-section">
+        <h2>🎯 Your Daily Challenges</h2>
+
+        {challenges.length > 0 ? (
+          <div className="challenges-table">
+            <div className="table-header">
+              <div>Title</div>
+              <div>Description</div>
+              <div>Difficulty</div>
+              <div>XP Reward</div>
+              <div>Created Date</div>
+            </div>
+
+            {challenges.map((challenge) => (
+              <div key={challenge.id} className="table-row">
+                <div className="challenge-title">{challenge.title}</div>
+                <div className="challenge-desc">{challenge.description?.substring(0, 50) || 'No description'}</div>
+                <div className="challenge-difficulty">
+                  <span className={`badge ${challenge.difficulty}`}>
+                    {challenge.difficulty?.toUpperCase()}
+                  </span>
+                </div>
+                <div className="challenge-xp">+{challenge.xp_reward} XP</div>
+                <div className="challenge-date">{new Date(challenge.created_date).toLocaleDateString()}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="no-challenges">
+            <p>No daily challenges created yet. Create your first challenge to get started!</p>
+          </div>
+        )}
+      </div>
+      
+      <div className="mentor-section">
+        <h2>🎓 Your Quizzes</h2>
+
+        {quizzes.length > 0 ? (
+          <div className="quizzes-table">
+            <div className="table-header">
+              <div>Title</div>
+              <div>Course</div>
+              <div>Lesson</div>
+              <div>Questions</div>
+              <div>Created Date</div>
+            </div>
+
+            {quizzes.map((quiz) => (
+              <div key={quiz.id} className="table-row">
+                <div className="quiz-title">{quiz.title}</div>
+                <div className="quiz-course">{quiz.course_title}</div>
+                <div className="quiz-lesson">{quiz.lesson_title}</div>
+                <div className="quiz-questions">{quiz.questions?.length || 0}</div>
+                <div className="quiz-date">{new Date(quiz.created_at).toLocaleDateString()}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="no-quizzes">
+            <p>No quizzes created yet. Create your first quiz to get started!</p>
           </div>
         )}
       </div>
